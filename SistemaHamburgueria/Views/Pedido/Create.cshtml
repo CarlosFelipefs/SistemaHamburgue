@@ -1,0 +1,21 @@
+﻿@model SistemaHamburgueria.Models.Pedido
+@{
+    ViewBag.Title = "Novo Pedido";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Novo Pedido</h2>
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    @Html.ValidationSummary(false, "", new { @class = "alert alert-danger" })
+
+    <div class="form-group mb-3">
+        <label class="form-label">Mesa</label>
+        @Html.DropDownList("MesaId", (SelectList)ViewBag.MesaId, "-- Selecione a Mesa --", new { @class = "form-select" })
+    </div>
+
+    <button type="submit" class="btn btn-success">Abrir Pedido</button>
+    @Html.ActionLink("Cancelar", "Index", null, new { @class = "btn btn-secondary ms-2" })
+}

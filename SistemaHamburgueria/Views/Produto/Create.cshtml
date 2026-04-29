@@ -1,0 +1,39 @@
+﻿@model SistemaHamburgueria.Models.Produto
+@{
+    ViewBag.Title = "Novo Produto";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Novo Produto</h2>
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    @Html.ValidationSummary(false, "", new { @class = "alert alert-danger" })
+
+    <div class="form-group mb-3">
+        @Html.LabelFor(m => m.Nome, new { @class = "form-label" })
+        @Html.TextBoxFor(m => m.Nome, new { @class = "form-control" })
+        @Html.ValidationMessageFor(m => m.Nome, "", new { @class = "text-danger" })
+    </div>
+
+    <div class="form-group mb-3">
+        @Html.LabelFor(m => m.Descricao, new { @class = "form-label" })
+        @Html.TextAreaFor(m => m.Descricao, new { @class = "form-control", rows = "3" })
+    </div>
+
+    <div class="form-group mb-3">
+        @Html.LabelFor(m => m.Preco, new { @class = "form-label" })
+        @Html.TextBoxFor(m => m.Preco, new { @class = "form-control", type = "number", step = "0.01", min = "0.01" })
+        @Html.ValidationMessageFor(m => m.Preco, "", new { @class = "text-danger" })
+    </div>
+
+    <div class="form-group mb-3">
+        @Html.LabelFor(m => m.CategoriaId, new { @class = "form-label" })
+        @Html.DropDownList("CategoriaId", null, "-- Selecione --", new { @class = "form-select" })
+        @Html.ValidationMessageFor(m => m.CategoriaId, "", new { @class = "text-danger" })
+    </div>
+
+    <button type="submit" class="btn btn-success">Salvar</button>
+    @Html.ActionLink("Cancelar", "Index", null, new { @class = "btn btn-secondary ms-2" })
+}

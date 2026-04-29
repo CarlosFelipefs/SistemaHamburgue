@@ -1,0 +1,39 @@
+﻿@model SistemaHamburgueria.Models.Funcionario
+@{
+    ViewBag.Title = "Editar Funcionário";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Editar Funcionário</h2>
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    @Html.HiddenFor(m => m.Id)
+    @Html.ValidationSummary(false, "", new { @class = "alert alert-danger" })
+
+    <div class="form-group mb-3">
+        @Html.LabelFor(m => m.Nome)
+        @Html.TextBoxFor(m => m.Nome, new { @class = "form-control" })
+        @Html.ValidationMessageFor(m => m.Nome, "", new { @class = "text-danger" })
+    </div>
+
+    <div class="form-group mb-3">
+        @Html.LabelFor(m => m.Cargo)
+        @Html.TextBoxFor(m => m.Cargo, new { @class = "form-control" })
+    </div>
+
+    <div class="form-group mb-3">
+        @Html.LabelFor(m => m.login)
+        @Html.TextBoxFor(m => m.login, new { @class = "form-control", type = "email" })
+        @Html.ValidationMessageFor(m => m.login, "", new { @class = "text-danger" })
+    </div>
+
+    <div class="form-group mb-3">
+        <label>Nova Senha <small class="text-muted">(deixe em branco para manter a atual)</small></label>
+        <input type="password" name="Senha" class="form-control" autocomplete="new-password" />
+    </div>
+
+    <button type="submit" class="btn btn-warning">Atualizar</button>
+    @Html.ActionLink("Cancelar", "Index", null, new { @class = "btn btn-secondary ms-2" })
+}

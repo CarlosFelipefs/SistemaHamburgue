@@ -1,0 +1,32 @@
+@model SistemaHamburgueria.Models.Estoque
+@{
+    ViewBag.Title = "Ajustar Estoque";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Ajustar Estoque — @Model.Produto.Nome</h2>
+<p><strong>Quantidade atual:</strong> @Model.QuantidadeDisponivel unidades</p>
+
+@if (TempData["Erro"] != null)
+{
+    <div class="alert alert-danger">@TempData["Erro"]</div>
+}
+
+@using (Html.BeginForm("Ajustar", "Estoque", new { id = Model.Id }, FormMethod.Post))
+{
+    @Html.AntiForgeryToken()
+    <div class="form-group mb-3">
+        <label><strong>Tipo de Movimentação</strong></label>
+        @Html.DropDownList("tipo",
+            new SelectList(Enum.GetValues(typeof(SistemaHamburgueria.Enums.TipoMovimentacao))
+                .Cast<SistemaHamburgueria.Enums.TipoMovimentacao>()
+                .Select(t => new SelectListItem { Value = ((int)t).ToString(), Text = t.ToString() })),
+            new { @class = "form-control" })
+    </div>
+    <div class="form-group mb-3">
+        <label><strong>Quantidade</strong></label>
+        <input type="number" name="quantidade" class="form-control" min="1" value="1" required />
+    </div>
+    <button type="submit" class="btn btn-primary">Confirmar Ajuste</button>
+    @Html.ActionLink("Cancelar", "Index", null, new { @class = "btn btn-secondary ms-2" })
+}

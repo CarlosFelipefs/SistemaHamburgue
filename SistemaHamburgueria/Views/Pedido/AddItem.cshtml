@@ -1,0 +1,20 @@
+﻿<div class="container">
+    <h2>Adicionar Produto</h2>
+
+    @using (Html.BeginForm())
+    {
+        <input type="hidden" name="PedidoId" value="@ViewBag.PedidoId" />
+
+        <div class="mb-3">
+            <label>Produto</label>
+            @Html.DropDownList("ProdutoId", null, new { @class = "form-control" })
+        </div>
+
+        <div class="mb-3">
+            <label>Quantidade</label>
+            <input type="number" name="Quantidade" class="form-control" />
+        </div>
+
+        <button class="btn btn-success">Adicionar</button>
+    }
+</div>

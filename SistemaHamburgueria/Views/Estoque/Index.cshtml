@@ -1,0 +1,52 @@
+@model IEnumerable<SistemaHamburgueria.Models.Estoque>
+@{
+    ViewBag.Title = "Controle de Estoque";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Controle de Estoque</h2>
+
+@if (TempData["Sucesso"] != null)
+{
+    <div class="alert alert-success">@TempData["Sucesso"]</div>
+}
+@if (TempData["Erro"] != null)
+{
+    <div class="alert alert-danger">@TempData["Erro"]</div>
+}
+
+@Html.ActionLink("+ Cadastrar Estoque", "Create", null, new { @class = "btn btn-primary mb-3" })
+
+<table class="table table-striped table-bordered">
+    <thead class="thead-dark">
+        <tr>
+            <th>Produto</th>
+            <th>Quantidade Disponível</th>
+            <th>Última Atualização</th>
+            <th>Ações</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var e in Model)
+        {
+            <tr class="@(e.QuantidadeDisponivel == 0 ? "table-danger" : e.QuantidadeDisponivel <= 5 ? "table-warning" : "")">
+                <td>@e.Produto.Nome</td>
+                <td>
+                    @e.QuantidadeDisponivel
+                    @if (e.QuantidadeDisponivel == 0)
+                    {
+                        <span class="badge badge-danger ms-2">SEM ESTOQUE</span>
+                    }
+                    else if (e.QuantidadeDisponivel <= 5)
+                    {
+                        <span class="badge badge-warning ms-2">BAIXO</span>
+                    }
+                </td>
+                <td>@e.DataAtualizacao.ToString("dd/MM/yyyy HH:mm")</td>
+                <td>
+                    @Html.ActionLink("Ajustar", "Ajustar", new { id = e.Id }, new { @class = "btn btn-sm btn-warning" })
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

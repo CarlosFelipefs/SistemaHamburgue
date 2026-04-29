@@ -1,0 +1,47 @@
+﻿@model IEnumerable<SistemaHamburgueria.Models.Mesa>
+
+@{
+    ViewBag.Title = "Mesas";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="card shadow-sm p-3">
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4>Mesas</h4>
+
+        <a href="/Mesa/Create" class="btn btn-success">
+            <i class="bi bi-plus"></i> Nova Mesa
+        </a>
+    </div>
+
+    <table class="table table-hover align-middle">
+        <thead class="table-dark">
+            <tr>
+                <th>Número</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.Numero</td>
+
+                    <td>
+                        @if (item.StatusMesa.ToString() == "Livre")
+                        {
+                            <span class="badge bg-success">Livre</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-danger">Ocupada</span>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+</div>

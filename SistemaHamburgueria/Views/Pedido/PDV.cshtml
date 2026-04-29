@@ -1,0 +1,93 @@
+﻿@model IEnumerable<SistemaHamburgueria.Models.Produto>
+
+@{
+    ViewBag.Title = "PDV";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="row">
+
+    <!-- PRODUTOS -->
+    <div class="col-md-8">
+        <h4>🍔 Cardápio</h4>
+
+        <div class="row">
+            @foreach (var item in Model)
+            {
+                <div class="col-md-4 mb-3">
+                    <div class="card shadow-sm produto-card" onclick="addItem(@item.Id, '@item.Nome', @item.Preco)">
+                        <div class="card-body text-center">
+                            <h5>@item.Nome</h5>
+                            <p>R$ @item.Preco</p>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- CARRINHO -->
+    <div class="col-md-4">
+        <div class="card shadow-sm p-3">
+            <h5>🧾 Pedido</h5>
+
+            <ul id="listaItens" class="list-group mb-3"></ul>
+
+            <h5>Total: R$ <span id="total">0</span></h5>
+
+            <button class="btn btn-success w-100 mt-2" onclick="finalizar()">
+                Finalizar Pedido
+            </button>
+        </div>
+    </div>
+
+</div>
+
+<style>
+    .produto-card {
+        cursor: pointer;
+        transition: 0.2s;
+        border-radius: 12px;
+    }
+
+        .produto-card:hover {
+            transform: scale(1.05);
+            background: #f8f9fa;
+        }
+</style>
+
+<script>
+    let pedidoId = @ViewBag.PedidoId;
+
+    function addItem(produtoId) {
+
+        fetch('/Pedido/AdicionarItemPDV', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                pedidoId: pedidoId,
+                produtoId: produtoId
+            })
+        })
+        .then(res => res.json())
+        .then(data => {
+
+            if (!data.sucesso) {
+                alert(data.mensagem);
+                return;
+            }
+
+            let lista = document.getElementById("listaItens");
+
+            let item = document.createElement("li");
+            item.className = "list-group-item";
+            item.innerText = data.nome + " - R$ " + data.preco;
+
+            lista.appendChild(item);
+
+            document.getElementById("total").innerText = data.total.toFixed(2);
+        });
+    }
+</script>

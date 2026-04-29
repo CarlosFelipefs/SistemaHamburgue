@@ -1,0 +1,217 @@
+﻿@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Login — Hamburgueria</title>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background: #0d0d0d;
+            font-family: 'DM Sans', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .login-wrap {
+            display: flex;
+            width: 820px;
+            min-height: 480px;
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid #1f1f1f;
+        }
+
+        /* Lado esquerdo decorativo */
+        .login-brand {
+            flex: 1;
+            background: #E8650A;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            position: relative;
+            overflow: hidden;
+        }
+
+            .login-brand::before {
+                content: '🍔';
+                position: absolute;
+                font-size: 260px;
+                opacity: 0.08;
+                top: -40px;
+                right: -60px;
+                line-height: 1;
+            }
+
+        .brand-name {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 48px;
+            letter-spacing: 3px;
+            color: #fff;
+            line-height: 1;
+            text-align: center;
+        }
+
+        .brand-sub {
+            font-size: 11px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.6);
+            margin-top: 8px;
+            text-align: center;
+        }
+
+        .brand-divider {
+            width: 40px;
+            height: 2px;
+            background: rgba(255,255,255,0.3);
+            margin: 20px auto;
+        }
+
+        .brand-tagline {
+            font-size: 13px;
+            color: rgba(255,255,255,0.5);
+            text-align: center;
+            max-width: 180px;
+            line-height: 1.6;
+        }
+
+        /* Lado direito — formulário */
+        .login-form {
+            flex: 1;
+            background: #111111;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 48px 40px;
+        }
+
+        .form-title {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 28px;
+            letter-spacing: 2px;
+            color: #f0f0f0;
+            margin-bottom: 4px;
+        }
+
+        .form-subtitle {
+            font-size: 12px;
+            color: #444;
+            letter-spacing: 1px;
+            margin-bottom: 32px;
+        }
+
+        .field-label {
+            font-size: 10px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: #555;
+            font-weight: 500;
+            margin-bottom: 6px;
+            display: block;
+        }
+
+        .form-control {
+            background: #161616 !important;
+            border: 1px solid #2a2a2a !important;
+            color: #ccc !important;
+            border-radius: 8px !important;
+            padding: 11px 14px !important;
+            font-size: 14px;
+            font-family: 'DM Sans', sans-serif;
+            margin-bottom: 20px;
+            transition: border-color 0.15s;
+        }
+
+            .form-control:focus {
+                border-color: #E8650A !important;
+                box-shadow: 0 0 0 3px rgba(232,101,10,0.15) !important;
+                outline: none;
+            }
+
+            .form-control::placeholder {
+                color: #333 !important;
+            }
+
+        .btn-login {
+            width: 100%;
+            background: #E8650A;
+            border: none;
+            border-radius: 8px;
+            padding: 12px;
+            color: #fff;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 14px;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            transition: background 0.15s;
+            margin-top: 4px;
+        }
+
+            .btn-login:hover {
+                background: #d05a08;
+            }
+
+        .alert-danger {
+            background: rgba(224,80,80,0.1) !important;
+            border: 1px solid rgba(224,80,80,0.2) !important;
+            color: #e05050 !important;
+            border-radius: 8px !important;
+            font-size: 13px;
+            margin-top: 16px;
+            padding: 10px 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-wrap">
+
+        <!-- BRAND -->
+        <div class="login-brand">
+            <div class="brand-name">Burger<br>House</div>
+            <div class="brand-divider"></div>
+            <div class="brand-sub">Painel Administrativo</div>
+            <div class="brand-tagline">Gerencie pedidos, mesas e produtos em um só lugar.</div>
+        </div>
+
+        <!-- FORM -->
+        <div class="login-form">
+            <div class="form-title">Bem-vindo</div>
+            <div class="form-subtitle">Faça login para continuar</div>
+
+            @using (Html.BeginForm("Login", "Funcionario", FormMethod.Post))
+            {
+                @Html.AntiForgeryToken()
+
+                <label class="field-label">E-mail</label>
+                <input type="email" name="email" class="form-control" placeholder="seu@email.com" required />
+
+                <label class="field-label">Senha</label>
+                <input type="password" name="senha" class="form-control" placeholder="••••••••" required />
+
+                <button type="submit" class="btn-login">Entrar →</button>
+            }
+
+            @if (ViewBag.Erro != null)
+            {
+                <div class="alert-danger">⚠ @ViewBag.Erro</div>
+            }
+        </div>
+
+    </div>
+</body>
+</html>

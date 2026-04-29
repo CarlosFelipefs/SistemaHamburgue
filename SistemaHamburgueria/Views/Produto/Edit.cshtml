@@ -1,0 +1,29 @@
+﻿@model SistemaHamburgueria.Models.Produto
+
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="card p-4 shadow-sm">
+    <h4>Editar Produto</h4>
+
+    @using (Html.BeginForm())
+    {
+        @Html.AntiForgeryToken()
+
+        @Html.HiddenFor(m => m.Id)
+
+        <div class="mb-3">
+            @Html.LabelFor(m => m.Nome)
+            @Html.TextBoxFor(m => m.Nome, new { @class = "form-control" })
+        </div>
+
+        <div class="mb-3">
+            @Html.LabelFor(m => m.Preco)
+            @Html.TextBoxFor(m => m.Preco, new { @class = "form-control" })
+        </div>
+
+        <button class="btn btn-primary">Salvar</button>
+        <a href="/Produto" class="btn btn-secondary">Voltar</a>
+    }
+</div>

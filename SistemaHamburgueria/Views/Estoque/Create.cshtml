@@ -1,0 +1,28 @@
+﻿@model SistemaHamburgueria.Models.Estoque
+@{
+    ViewBag.Title = "Cadastrar Estoque";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Cadastrar Estoque</h2>
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    @Html.ValidationSummary(false, "", new { @class = "alert alert-danger" })
+
+    <div class="form-group mb-3">
+        @Html.LabelFor(m => m.ProdutoId, new { @class = "form-label" })
+        @Html.DropDownList("ProdutoId", null, "-- Selecione o Produto --", new { @class = "form-select" })
+        @Html.ValidationMessageFor(m => m.ProdutoId, "", new { @class = "text-danger" })
+    </div>
+
+    <div class="form-group mb-3">
+        @Html.LabelFor(m => m.QuantidadeDisponivel, new { @class = "form-label" })
+        @Html.TextBoxFor(m => m.QuantidadeDisponivel, new { @class = "form-control", type = "number", min = "0" })
+        @Html.ValidationMessageFor(m => m.QuantidadeDisponivel, "", new { @class = "text-danger" })
+    </div>
+
+    <button type="submit" class="btn btn-success">Salvar</button>
+    @Html.ActionLink("Cancelar", "Index", null, new { @class = "btn btn-secondary ms-2" })
+}
