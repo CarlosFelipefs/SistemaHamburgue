@@ -1,5 +1,4 @@
 ﻿@model IEnumerable<SistemaHamburgueria.Models.Pedido>
-
 @{
     ViewBag.Title = "Pedidos";
     Layout = "~/Views/Shared/_Layout.cshtml";
@@ -7,28 +6,41 @@
 
 <h2>Pedidos</h2>
 
-<p>
-    @Html.ActionLink("Novo Pedido", "Create", null, new { @class = "btn btn-primary" })
-</p>
+@if (TempData["Sucesso"] != null)
+{
+    <div class="alert alert-success">@TempData["Sucesso"]</div>
+}
+@if (TempData["Erro"] != null)
+{
+    <div class="alert alert-danger">@TempData["Erro"]</div>
+}
+
+@Html.ActionLink("+ Novo Pedido", "Create", null, new { @class = "btn btn-primary mb-3" })
 
 <table class="table table-striped">
-    <tr>
-        <th>Mesa</th>
-        <th>Data</th>
-        <th>Total</th>
-        <th></th>
-    </tr>
-
-    @foreach (var item in Model)
-    {
+    <thead>
         <tr>
-            <td>@item.Mesa?.Numero</td>
-            <td>@item.DataPedido</td>
-            <td>R$ @item.ValorTotal</td>
-            <td>
-                @Html.ActionLink("Detalhes", "Details", new { id = item.Id }, new { @class = "btn btn-info btn-sm" }) |
-                @Html.ActionLink("Finalizar", "Finalizar", new { id = item.Id }, new { @class = "btn btn-success btn-sm" })
-            </td>
+            <th>#</th>
+            <th>Mesa</th>
+            <th>Data</th>
+            <th>Total</th>
+            <th>Status</th>
+            <th>Ações</th>
         </tr>
-    }
+    </thead>
+    <tbody>
+        @foreach (var p in Model)
+        {
+            <tr>
+                <td>@p.Id</td>
+                <td>Mesa @p.Mesa.Numero</td>
+                <td>@p.DataPedido.ToString("dd/MM/yyyy HH:mm")</td>
+                <td>R$ @p.ValorTotal.ToString("F2")</td>
+                <td>@p.StatusPedido</td>
+                <td>
+                    @Html.ActionLink("Detalhes", "Details", new { id = p.Id }, new { @class = "btn btn-sm btn-secondary" })
+                </td>
+            </tr>
+        }
+    </tbody>
 </table>

@@ -91,115 +91,105 @@ namespace SistemaHamburgueria.Controllers
         }
     }
 
-    // ─── ADICIONAR ITEM ───────────────────────────────────────────
-    public ActionResult AddItem(int id)
-    {
-        try
+        // ─── ADICIONAR ITEM ───────────────────────────────────────────
+        public ActionResult AddItem(int id)
         {
-            var pedido = db.Pedidos
-                .Include(p => p.Mesa)
-                .Include(p => p.ItensPedido.Select(i => i.Produto))
-                .FirstOrDefault(p => p.Id == id);
+            try
+            {
+                var pedido = db.Pedidos
+                    .Include(p => p.Mesa)
+                    .Include(p => p.ItensPedido.Select(i => i.Produto))
+                    .FirstOrDefault(p => p.Id == id);
 
-            if (pedido == null) return HttpNotFound();
+                if (pedido == null) return HttpNotFound();
 
-            ViewBag.ProdutoId = new SelectList(db.Produtos, "Id", "Nome");
-            ViewBag.PedidoId  = id;
-            ViewBag.Pedido    = pedido;
-            return View();
+                ViewBag.ProdutoId = new SelectList(db.Produtos.ToList(), "Id", "Nome");
+                ViewBag.PedidoId = id;
+                ViewBag.Pedido = pedido;
+                return View(pedido);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[Pedido.AddItem GET] Erro: {ex.Message}");
+                return View("Error");
+            }
         }
-        catch (Exception ex)
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult AddItem(int PedidoId, int ProdutoId, int Quantidade)
         {
-            System.Diagnostics.Debug.WriteLine($"[Pedido.AddItem GET] Erro: {ex.Message}");
-            return View("Error");
-        }
-    }
-
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public ActionResult AddItem(int PedidoId, int ProdutoId, int Quantidade)
-    {
-        try
-        {
-            // Validação básica de quantidade
-            if (Quantidade <= 0)
+            try
             {
-                TempData["Erro"] = "A quantidade deve ser maior que zero.";
-                return RedirectToAction("AddItem", new { id = PedidoId });
-            }
-
-            var produto = db.Produtos.Find(ProdutoId);
-            if (produto == null)
-            {
-                TempData["Erro"] = "Produto não encontrado.";
-                return RedirectToAction("AddItem", new { id = PedidoId });
-            }
-
-            // Verificar estoque
-            var estoque = db.Estoques.FirstOrDefault(e => e.ProdutoId == ProdutoId);
-            if (estoque == null || estoque.QuantidadeDisponivel < Quantidade)
-            {
-                int disponivel = estoque?.QuantidadeDisponivel ?? 0;
-                TempData["Erro"] = $"Estoque insuficiente! Disponível: {disponivel} unidade(s).";
-                return RedirectToAction("AddItem", new { id = PedidoId });
-            }
-
-            var pedido = db.Pedidos.Find(PedidoId);
-            if (pedido == null) return HttpNotFound();
-
-            // Verifica se produto já existe no pedido para somar
-            var itemExistente = db.ItensPedido
-                .FirstOrDefault(i => i.PedidoId == PedidoId && i.ProdutoId == ProdutoId);
-
-            if (itemExistente != null)
-            {
-                itemExistente.Quantidade += Quantidade;
-                // Subtotal é calculado por propriedade, mas PrecoUnitario permanece
-            }
-            else
-            {
-                var item = new ItemPedido
+                if (Quantidade <= 0)
                 {
-                    PedidoId      = PedidoId,
-                    ProdutoId     = ProdutoId,
-                    Quantidade    = Quantidade,
-                    PrecoUnitario = produto.Preco
-                };
-                db.ItensPedido.Add(item);
+                    TempData["Erro"] = "Quantidade deve ser maior que zero.";
+                    return RedirectToAction("AddItem", new { id = PedidoId });
+                }
+
+                var produto = db.Produtos.Find(ProdutoId);
+                if (produto == null)
+                {
+                    TempData["Erro"] = "Produto não encontrado.";
+                    return RedirectToAction("AddItem", new { id = PedidoId });
+                }
+
+                var estoque = db.Estoques.FirstOrDefault(e => e.ProdutoId == ProdutoId);
+                if (estoque == null || estoque.QuantidadeDisponivel < Quantidade)
+                {
+                    int disponivel = estoque?.QuantidadeDisponivel ?? 0;
+                    TempData["Erro"] = $"Estoque insuficiente! Disponível: {disponivel}.";
+                    return RedirectToAction("AddItem", new { id = PedidoId });
+                }
+
+                var pedido = db.Pedidos.Find(PedidoId);
+                if (pedido == null) return HttpNotFound();
+
+                var itemExistente = db.ItensPedido
+                    .FirstOrDefault(i => i.PedidoId == PedidoId && i.ProdutoId == ProdutoId);
+
+                if (itemExistente != null)
+                {
+                    itemExistente.Quantidade += Quantidade;
+                }
+                else
+                {
+                    db.ItensPedido.Add(new ItemPedido
+                    {
+                        PedidoId = PedidoId,
+                        ProdutoId = ProdutoId,
+                        Quantidade = Quantidade,
+                        PrecoUnitario = produto.Preco
+                    });
+                }
+
+                estoque.QuantidadeDisponivel -= Quantidade;
+                estoque.DataAtualizacao = DateTime.Now;
+
+                db.MovimentacoesEstoque.Add(new MovimentacaoEstoque
+                {
+                    ProdutoId = ProdutoId,
+                    TipoMovimentacao = TipoMovimentacao.Saida,
+                    Quantidade = Quantidade,
+                    DataMovimentacao = DateTime.Now
+                });
+
+                pedido.ValorTotal += produto.Preco * Quantidade;
+                db.SaveChanges();
+
+                TempData["Sucesso"] = $"{produto.Nome} adicionado!";
+                return RedirectToAction("Details", new { id = PedidoId });
             }
-
-            // Baixa no estoque
-            estoque.QuantidadeDisponivel -= Quantidade;
-            estoque.DataAtualizacao       = DateTime.Now;
-
-            // Registra movimentação de estoque
-            var movimentacao = new MovimentacaoEstoque
+            catch (Exception ex)
             {
-                ProdutoId        = ProdutoId,
-                TipoMovimentacao = TipoMovimentacao.Saida,
-                Quantidade       = Quantidade,
-                DataMovimentacao = DateTime.Now
-            };
-            db.MovimentacoesEstoque.Add(movimentacao);
-
-            // Recalcula total do pedido
-            pedido.ValorTotal += produto.Preco * Quantidade;
-
-            db.SaveChanges();
-
-            TempData["Sucesso"] = $"{produto.Nome} adicionado ao pedido!";
-            return RedirectToAction("Details", new { id = PedidoId });
+                System.Diagnostics.Debug.WriteLine($"[Pedido.AddItem POST] Erro: {ex.Message}");
+                TempData["Erro"] = "Erro ao adicionar item.";
+                return RedirectToAction("AddItem", new { id = PedidoId });
+            }
         }
-        catch (Exception ex)
-        {
-            System.Diagnostics.Debug.WriteLine($"[Pedido.AddItem POST] Erro: {ex.Message}");
-            TempData["Erro"] = "Erro ao adicionar item. Tente novamente.";
-            return RedirectToAction("AddItem", new { id = PedidoId });
-        }
-    }
 
-    // ─── DETALHES DO PEDIDO ───────────────────────────────────────
-    public ActionResult Details(int id)
+        // ─── DETALHES DO PEDIDO ───────────────────────────────────────
+        public ActionResult Details(int id)
     {
         try
         {
@@ -284,50 +274,44 @@ namespace SistemaHamburgueria.Controllers
         }
     }
 
-    // ─── FINALIZAR PEDIDO ─────────────────────────────────────────
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public ActionResult Finalizar(int id, FormaPagamento formaPagamento)
-    {
-        try
+        // ─── FINALIZAR PEDIDO ─────────────────────────────────────────
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult Finalizar(int id, int formaPagamento)
         {
-            var pedido = db.Pedidos
-                .Include(p => p.ItensPedido)
-                .FirstOrDefault(p => p.Id == id);
-
-            if (pedido == null) return HttpNotFound();
-
-            if (!pedido.ItensPedido.Any())
+            try
             {
-                TempData["Erro"] = "Não é possível finalizar um pedido sem itens.";
+                var pedido = db.Pedidos
+                    .Include(p => p.ItensPedido)
+                    .FirstOrDefault(p => p.Id == id);
+
+                if (pedido == null) return HttpNotFound();
+
+                pedido.StatusPedido = StatusPedido.Entregue;
+                pedido.FormaPagamento = (FormaPagamento)formaPagamento;
+
+                if (pedido.MesaId.HasValue)
+                {
+                    var mesa = db.Mesas.Find(pedido.MesaId.Value);
+                    if (mesa != null)
+                        mesa.StatusMesa = StatusMesa.Livre;
+                }
+
+                db.SaveChanges();
+                TempData["Sucesso"] = "Pedido finalizado!";
+                return RedirectToAction("Index");
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[Pedido.Finalizar] Erro: {ex.Message}");
+                TempData["Erro"] = "Erro ao finalizar pedido.";
                 return RedirectToAction("Details", new { id });
             }
-
-            pedido.StatusPedido   = StatusPedido.Entregue;
-            pedido.FormaPagamento = formaPagamento;
-
-            // Libera a mesa
-            if (pedido.MesaId.HasValue)
-            {
-                var mesa = db.Mesas.Find(pedido.MesaId.Value);
-                if (mesa != null)
-                    mesa.StatusMesa = StatusMesa.Livre;
-            }
-
-            db.SaveChanges();
-            TempData["Sucesso"] = "Pedido finalizado com sucesso!";
-            return RedirectToAction("Index");
         }
-        catch (Exception ex)
-        {
-            System.Diagnostics.Debug.WriteLine($"[Pedido.Finalizar] Erro: {ex.Message}");
-            TempData["Erro"] = "Erro ao finalizar pedido.";
-            return RedirectToAction("Details", new { id });
-        }
-    }
 
-    // ─── CANCELAR PEDIDO ──────────────────────────────────────────
-    [HttpPost]
+
+        // ─── CANCELAR PEDIDO ──────────────────────────────────────────
+        [HttpPost]
     [ValidateAntiForgeryToken]
     public ActionResult Cancelar(int id)
     {

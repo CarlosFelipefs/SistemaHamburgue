@@ -1,0 +1,34 @@
+﻿@model SistemaHamburgueria.Models.Cliente
+@{
+    ViewBag.Title = "Novo Cliente";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Novo Cliente</h2>
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    @Html.ValidationSummary(false, "", new { @class = "alert alert-danger" })
+
+    <div class="form-group mb-3">
+        @Html.LabelFor(m => m.Nome, new { @class = "form-label" })
+        @Html.TextBoxFor(m => m.Nome, new { @class = "form-control" })
+        @Html.ValidationMessageFor(m => m.Nome, "", new { @class = "text-danger" })
+    </div>
+
+    <div class="form-group mb-3">
+        @Html.LabelFor(m => m.Telefone, new { @class = "form-label" })
+        @Html.TextBoxFor(m => m.Telefone, new { @class = "form-control" })
+        @Html.ValidationMessageFor(m => m.Telefone, "", new { @class = "text-danger" })
+    </div>
+
+    <div class="form-group mb-3">
+        @Html.LabelFor(m => m.Email, new { @class = "form-label" })
+        @Html.TextBoxFor(m => m.Email, new { @class = "form-control", type = "email" })
+        @Html.ValidationMessageFor(m => m.Email, "", new { @class = "text-danger" })
+    </div>
+
+    <button type="submit" class="btn btn-success">Salvar</button>
+    @Html.ActionLink("Cancelar", "Index", null, new { @class = "btn btn-secondary ms-2" })
+}

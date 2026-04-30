@@ -33,12 +33,7 @@ namespace SistemaHamburgueria.Controllers
         {
             try
             {
-                // Apenas produtos sem estoque cadastrado
-                var produtosSemEstoque = db.Produtos
-                    .Where(p => !db.Estoques.Any(e => e.ProdutoId == p.Id))
-                    .ToList();
-
-                ViewBag.ProdutoId = new SelectList(produtosSemEstoque, "Id", "Nome");
+                ViewBag.ProdutoId = new SelectList(db.Produtos.ToList(), "Id", "Nome");
                 return View();
             }
             catch (Exception ex)
@@ -56,23 +51,13 @@ namespace SistemaHamburgueria.Controllers
             {
                 if (!ModelState.IsValid)
                 {
-                    ViewBag.ProdutoId = new SelectList(db.Produtos, "Id", "Nome", estoque.ProdutoId);
-                    return View(estoque);
-                }
-
-                // Verifica se já existe estoque para o produto
-                bool jaExiste = db.Estoques.Any(e => e.ProdutoId == estoque.ProdutoId);
-                if (jaExiste)
-                {
-                    ModelState.AddModelError("ProdutoId", "Já existe um registro de estoque para este produto.");
-                    ViewBag.ProdutoId = new SelectList(db.Produtos, "Id", "Nome", estoque.ProdutoId);
+                    ViewBag.ProdutoId = new SelectList(db.Produtos.ToList(), "Id", "Nome", estoque.ProdutoId);
                     return View(estoque);
                 }
 
                 estoque.DataAtualizacao = DateTime.Now;
                 db.Estoques.Add(estoque);
 
-                // Registra movimentação de entrada
                 db.MovimentacoesEstoque.Add(new MovimentacaoEstoque
                 {
                     ProdutoId = estoque.ProdutoId,
@@ -82,19 +67,18 @@ namespace SistemaHamburgueria.Controllers
                 });
 
                 db.SaveChanges();
-                TempData["Sucesso"] = "Estoque cadastrado com sucesso!";
+                TempData["Sucesso"] = "Estoque cadastrado!";
                 return RedirectToAction("Index");
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"[Estoque.Create POST] Erro: {ex.Message}");
                 ModelState.AddModelError("", "Erro ao salvar o estoque. Tente novamente.");
-                ViewBag.ProdutoId = new SelectList(db.Produtos, "Id", "Nome", estoque.ProdutoId);
+                ViewBag.ProdutoId = new SelectList(db.Produtos.ToList(), "Id", "Nome", estoque.ProdutoId);
                 return View(estoque);
             }
         }
 
-        // Ajuste de quantidade (entrada/saída manual)
         public ActionResult Ajustar(int id)
         {
             try
@@ -118,7 +102,7 @@ namespace SistemaHamburgueria.Controllers
             {
                 if (quantidade <= 0)
                 {
-                    TempData["Erro"] = "A quantidade deve ser maior que zero.";
+                    TempData["Erro"] = "Quantidade deve ser maior que zero.";
                     return RedirectToAction("Ajustar", new { id });
                 }
 
@@ -143,7 +127,7 @@ namespace SistemaHamburgueria.Controllers
                 });
 
                 db.SaveChanges();
-                TempData["Sucesso"] = "Estoque ajustado com sucesso!";
+                TempData["Sucesso"] = "Estoque ajustado!";
                 return RedirectToAction("Index");
             }
             catch (Exception ex)
@@ -154,4 +138,4 @@ namespace SistemaHamburgueria.Controllers
             }
         }
     }
-    }
+}

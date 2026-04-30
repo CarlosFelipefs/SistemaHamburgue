@@ -1,10 +1,10 @@
 @model SistemaHamburgueria.Models.Pedido
 @{
-    ViewBag.Title = "Detalhes do Pedido #" + Model.Id;
+    ViewBag.Title = "Detalhes do Pedido";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h2>Pedido #@Model.Id — Mesa @Model.Mesa?.Numero</h2>
+<h2>Pedido #@Model.Id — Mesa @Model.Mesa.Numero</h2>
 <p><strong>Data:</strong> @Model.DataPedido.ToString("dd/MM/yyyy HH:mm")</p>
 <p><strong>Status:</strong> @Model.StatusPedido</p>
 
@@ -40,7 +40,9 @@
                     {
                         @Html.AntiForgeryToken()
                         <button type="submit" class="btn btn-sm btn-danger"
-                                onclick="return confirm('Remover item e devolver estoque?')">Remover</button>
+                                onclick="return confirm('Remover item?')">
+                            Remover
+                        </button>
                     }
                 </td>
             </tr>
@@ -57,31 +59,33 @@
 @if (Model.StatusPedido == SistemaHamburgueria.Enums.StatusPedido.EmPreparo)
 {
     <div class="row mt-3">
-        <!-- FINALIZAR -->
         <div class="col-md-6">
             @using (Html.BeginForm("Finalizar", "Pedido", new { id = Model.Id }, FormMethod.Post))
             {
                 @Html.AntiForgeryToken()
                 <div class="mb-2">
-                    <label><strong>Forma de Pagamento</strong></label>
-                    @Html.DropDownList("formaPagamento",
-                        new SelectList(Enum.GetValues(typeof(SistemaHamburgueria.Enums.FormaPagamento))
-                            .Cast<SistemaHamburgueria.Enums.FormaPagamento>()
-                            .Select(f => new SelectListItem { Value = ((int)f).ToString(), Text = f.ToString() })),
-                        new { @class = "form-control mb-2" })
+                    <label class="form-label"><strong>Forma de Pagamento</strong></label>
+                    <select name="formaPagamento" class="form-select mb-2">
+                        <option value="1">Dinheiro</option>
+                        <option value="2">Cartão Crédito</option>
+                        <option value="3">Cartão Débito</option>
+                        <option value="4">Pix</option>
+                    </select>
                 </div>
                 <button type="submit" class="btn btn-success"
-                        onclick="return confirm('Finalizar pedido?')">✔ Finalizar Pedido</button>
+                        onclick="return confirm('Finalizar pedido?')">
+                    ✔ Finalizar Pedido
+                </button>
             }
         </div>
-
-        <!-- CANCELAR -->
         <div class="col-md-6">
             @using (Html.BeginForm("Cancelar", "Pedido", new { id = Model.Id }, FormMethod.Post))
             {
                 @Html.AntiForgeryToken()
                 <button type="submit" class="btn btn-warning mt-4"
-                        onclick="return confirm('Cancelar pedido? O estoque será devolvido.')">✖ Cancelar Pedido</button>
+                        onclick="return confirm('Cancelar pedido?')">
+                    ✖ Cancelar Pedido
+                </button>
             }
         </div>
     </div>
@@ -92,4 +96,4 @@
 }
 
 <hr />
-@Html.ActionLink("← Voltar à lista", "Index", null, new { @class = "btn btn-secondary" })
+@Html.ActionLink("← Voltar", "Index", null, new { @class = "btn btn-secondary" })
