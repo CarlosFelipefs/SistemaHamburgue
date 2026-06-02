@@ -1,36 +1,34 @@
-﻿@{
+﻿@model SistemaHamburgueria.Models.DashboardViewModel
+@using SistemaHamburgueria.Enums
+@{
     ViewBag.Title = "Dashboard";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<!-- CARDS DE MÉTRICAS -->
+<!-- CARDS -->
 <div class="row g-3 mb-4">
     <div class="col-md-3">
         <div class="stat-card highlight">
             <div class="stat-label">Faturamento hoje</div>
-            <div class="stat-value">R$4.280</div>
-            <span class="badge" style="background:rgba(255,255,255,.15);color:#fff;margin-top:6px;">↑ 12% vs ontem</span>
+            <div class="stat-value">R$@Model.FaturamentoHoje.ToString("N2")</div>
         </div>
     </div>
     <div class="col-md-3">
         <div class="stat-card">
             <div class="stat-label">Pedidos hoje</div>
-            <div class="stat-value">87</div>
-            <span class="badge bg-success mt-2">↑ 8%</span>
+            <div class="stat-value">@Model.PedidosHoje</div>
         </div>
     </div>
     <div class="col-md-3">
         <div class="stat-card">
             <div class="stat-label">Ticket médio</div>
-            <div class="stat-value">R$49</div>
-            <span class="badge" style="background:rgba(224,80,80,.12);color:#e05050;margin-top:6px;">↓ 3%</span>
+            <div class="stat-value">R$@Model.TicketMedio.ToString("N2")</div>
         </div>
     </div>
     <div class="col-md-3">
         <div class="stat-card">
             <div class="stat-label">Mesas ativas</div>
-            <div class="stat-value">14/20</div>
-            <span class="badge bg-success mt-2">70% ocupação</span>
+            <div class="stat-value">@Model.MesasAtivas/@Model.TotalMesas</div>
         </div>
     </div>
 </div>
@@ -50,101 +48,22 @@
     </div>
     <div class="col-md-4">
         <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <span class="card-title">Receita por Categoria</span>
-                <span style="font-size:11px;color:#444;">Esta semana</span>
+            <div class="card-header">
+                <span class="card-title">Status das Mesas</span>
             </div>
-            <div class="card-body">
-                <canvas id="graficoCategoria" height="110"></canvas>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- BOTTOM ROW -->
-<div class="row g-3">
-    <div class="col-md-4">
-        <div class="card h-100">
-            <div class="card-header"><span class="card-title">Pedidos Recentes</span></div>
-            <div class="card-body p-0">
-                <table class="table table-hover mb-0">
-                    <tbody>
-                        <tr>
-                            <td><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#E8650A;margin-right:8px;"></span>Smash Duplo Bacon <small class="text-muted d-block" style="font-size:11px;">Mesa 4</small></td>
-                            <td><span class="badge badge-warning">Em preparo</span></td>
-                            <td class="text-end fw-500" style="color:#ddd;">R$68</td>
-                        </tr>
-                        <tr>
-                            <td><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#4caf50;margin-right:8px;"></span>Combo BBQ Artesanal <small class="text-muted d-block" style="font-size:11px;">Mesa 7</small></td>
-                            <td><span class="badge badge-success">Entregue</span></td>
-                            <td class="text-end fw-500" style="color:#ddd;">R$92</td>
-                        </tr>
-                        <tr>
-                            <td><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#555;margin-right:8px;"></span>Classic Cheeseburger <small class="text-muted d-block" style="font-size:11px;">Delivery</small></td>
-                            <td><span class="badge badge-secondary">Aguardando</span></td>
-                            <td class="text-end fw-500" style="color:#ddd;">R$43</td>
-                        </tr>
-                        <tr>
-                            <td><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#4caf50;margin-right:8px;"></span>Frango Crocante <small class="text-muted d-block" style="font-size:11px;">Mesa 2</small></td>
-                            <td><span class="badge badge-success">Entregue</span></td>
-                            <td class="text-end fw-500" style="color:#ddd;">R$55</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-md-4">
-        <div class="card h-100">
-            <div class="card-header"><span class="card-title">Top Produtos</span></div>
-            <div class="card-body">
-                @{
-                    var produtos = new[] {
-                        new { Nome = "Smash Duplo Bacon", Qtd = 312, Pct = 90 },
-                        new { Nome = "Combo BBQ Artesanal", Qtd = 245, Pct = 70 },
-                        new { Nome = "Frango Crocante",    Qtd = 181, Pct = 52 },
-                        new { Nome = "Classic Cheese",     Qtd = 134, Pct = 38 },
-                        new { Nome = "Veggie Smash",       Qtd = 82,  Pct = 24 },
-                    };
-                    int rank = 1;
-                }
-                @foreach (var p in produtos)
-                {
-                    <div style="display:flex;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid #1c1c1c;">
-                        <span style="font-family:'Bebas Neue',sans-serif;font-size:18px;color:#2e2e2e;min-width:18px;">@rank</span>
-                        <span style="flex:1;font-size:13px;color:#bbb;">@p.Nome</span>
-                        <div style="flex:1;height:4px;background:#222;border-radius:3px;overflow:hidden;">
-                            <div style="width:@(p.Pct)%;height:100%;background:#E8650A;border-radius:3px;"></div>
-                        </div>
-                        <span style="font-size:11px;color:#555;min-width:36px;text-align:right;">@p.Qtd un</span>
-                    </div>
-                    rank++;
-                }
-            </div>
-        </div>
-    </div>
-
-    <div class="col-md-4">
-        <div class="card h-100">
-            <div class="card-header"><span class="card-title">Status das Mesas</span></div>
             <div class="card-body">
                 <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;">
-                    @{
-                        var mesas = new[] { true, false, true, true, false, true, true, false, true, false, false, true };
-                        for (int i = 0; i < mesas.Length; i++)
-                        {
-                            var ocupada = mesas[i];
-                            var bg = ocupada ? "rgba(232,101,10,0.1)" : "#161616";
-                            var border = ocupada ? "rgba(232,101,10,0.3)" : "#222";
-                            var numColor = ocupada ? "#E8650A" : "#eee";
-                            var stColor = ocupada ? "rgba(232,101,10,0.7)" : "#555";
-                            var st = ocupada ? "Ocupada" : "Livre";
-                            <div style="background:@bg;border:1px solid @border;border-radius:8px;padding:10px 8px;text-align:center;">
-                                <div style="font-family:'Bebas Neue',sans-serif;font-size:20px;color:@numColor;line-height:1;">@(i + 1)</div>
-                                <div style="font-size:9px;letter-spacing:1px;text-transform:uppercase;color:@stColor;margin-top:2px;">@st</div>
-                            </div>
-                        }
+                    @foreach (var mesa in Model.Mesas)
+                    {
+                        var ocupada = mesa.StatusMesa == StatusMesa.Ocupada;
+                        var bg = ocupada ? "rgba(232,101,10,0.1)" : "#161616";
+                        var border = ocupada ? "rgba(232,101,10,0.3)" : "#222";
+                        var numCor = ocupada ? "#E8650A" : "#eee";
+                        var stCor = ocupada ? "rgba(232,101,10,0.7)" : "#555";
+                        <div style="background:@bg;border:1px solid @border;border-radius:8px;padding:10px 8px;text-align:center;">
+                            <div style="font-family:'Bebas Neue',sans-serif;font-size:20px;color:@numCor;line-height:1;">@mesa.Numero</div>
+                            <div style="font-size:9px;letter-spacing:1px;text-transform:uppercase;color:@stCor;margin-top:2px;">@mesa.StatusMesa</div>
+                        </div>
                     }
                 </div>
             </div>
@@ -152,43 +71,98 @@
     </div>
 </div>
 
-<!-- SCRIPTS DOS GRÁFICOS -->
+<!-- BOTTOM ROW -->
+<div class="row g-3">
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-header"><span class="card-title">Pedidos Recentes</span></div>
+            <div class="card-body p-0">
+                <table class="table table-hover mb-0">
+                    <tbody>
+                        @foreach (var p in Model.PedidosRecentes)
+                        {
+                            var dotCor = p.StatusPedido == StatusPedido.Entregue ? "#4caf50"
+                                       : p.StatusPedido == StatusPedido.EmPreparo ? "#E8650A"
+                                       : p.StatusPedido == StatusPedido.Cancelado ? "#e05050"
+                                       : "#888";
+
+                            var badgeSt = p.StatusPedido == StatusPedido.Entregue ? "background:rgba(76,175,80,0.12);color:#4caf50;"
+                                        : p.StatusPedido == StatusPedido.EmPreparo ? "background:rgba(232,101,10,0.12);color:#E8650A;"
+                                        : p.StatusPedido == StatusPedido.Cancelado ? "background:rgba(224,80,80,0.12);color:#e05050;"
+                                        : "background:rgba(120,120,120,0.12);color:#888;";
+                            <tr>
+                                <td>
+                                    <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:@dotCor;margin-right:8px;"></span>
+                                    @(p.ItensPedido?.FirstOrDefault()?.Produto?.Nome ?? "Pedido #" + p.Id)
+                                    <small style="display:block;font-size:11px;color:#555;">
+                                        @(p.Mesa != null ? "Mesa " + p.Mesa.Numero : "Delivery")
+                                    </small>
+                                </td>
+                                <td>
+                                    <span style="@badgeSt font-size:11px;padding:3px 10px;border-radius:20px;">
+                                        @p.StatusPedido
+                                    </span>
+                                </td>
+                                <td style="text-align:right;color:#ddd;font-weight:500;">
+                                    R$@p.ValorTotal.ToString("N2")
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-header"><span class="card-title">Top Produtos</span></div>
+            <div class="card-body">
+                @{ int rank = 1; }
+                @foreach (var p in Model.TopProdutos)
+                {
+                    <div style="display:flex;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid #1c1c1c;">
+                        <span style="font-family:'Bebas Neue',sans-serif;font-size:18px;color:#2e2e2e;min-width:18px;">@rank</span>
+                        <span style="flex:1;font-size:13px;color:#bbb;">@p.Nome</span>
+                        <div style="flex:1;height:4px;background:#222;border-radius:3px;overflow:hidden;">
+                            <div style="width:@(p.Percentual)%;height:100%;background:#E8650A;border-radius:3px;"></div>
+                        </div>
+                        <span style="font-size:11px;color:#555;min-width:40px;text-align:right;">@p.Quantidade un</span>
+                    </div>
+                    rank++;
+                }
+                @if (!Model.TopProdutos.Any())
+                {
+                    <p style="color:#333;font-size:13px;text-align:center;padding:20px 0;">Nenhum dado ainda.</p>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- SCRIPTS -->
 <script>
-    const orange = '#E8650A';
-    const dim = 'rgba(232,101,10,0.12)';
+    const orange    = '#E8650A';
+    const dim       = 'rgba(232,101,10,0.12)';
     const gridColor = '#1f1f1f';
 
-    Chart.defaults.color = '#555';
-    Chart.defaults.borderColor = gridColor;
-    Chart.defaults.font.family = "'DM Sans', sans-serif";
+    Chart.defaults.color        = '#555';
+    Chart.defaults.borderColor  = gridColor;
+    Chart.defaults.font.family  = "'DM Sans', sans-serif";
 
-    // Gráfico de barras + linha
     new Chart(document.getElementById('graficoPedidos'), {
         type: 'bar',
         data: {
-            labels: ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'],
-            datasets: [
-                {
-                    label: 'Pedidos',
-                    data: [32, 48, 41, 67, 85, 112, 74],
-                    backgroundColor: dim,
-                    borderColor: orange,
-                    borderWidth: 1.5,
-                    borderRadius: 5,
-                    hoverBackgroundColor: 'rgba(232,101,10,0.25)'
-                },
-                {
-                    label: 'Faturamento (÷10)',
-                    data: [18, 29, 24, 41, 55, 78, 49],
-                    type: 'line',
-                    borderColor: 'rgba(255,255,255,0.15)',
-                    backgroundColor: 'transparent',
-                    borderWidth: 1.5,
-                    pointBackgroundColor: orange,
-                    pointRadius: 3,
-                    tension: 0.4
-                }
-            ]
+            labels: @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.Labels)),
+            datasets: [{
+                label: 'Pedidos',
+                data: @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.PedidosPorDia)),
+                backgroundColor: dim,
+                borderColor: orange,
+                borderWidth: 1.5,
+                borderRadius: 5,
+                hoverBackgroundColor: 'rgba(232,101,10,0.25)'
+            }]
         },
         options: {
             responsive: true,
@@ -198,38 +172,7 @@
             },
             scales: {
                 x: { grid: { color: gridColor }, ticks: { font: { size: 11 } } },
-                y: { grid: { color: gridColor }, ticks: { font: { size: 11 } } }
-            }
-        }
-    });
-
-    // Gráfico de rosca
-    new Chart(document.getElementById('graficoCategoria'), {
-        type: 'doughnut',
-        data: {
-            labels: ['Hambúrgueres', 'Combos', 'Bebidas', 'Sobremesas'],
-            datasets: [{
-                data: [48, 28, 16, 8],
-                backgroundColor: [
-                    '#E8650A',
-                    'rgba(232,101,10,0.5)',
-                    'rgba(232,101,10,0.25)',
-                    'rgba(232,101,10,0.1)'
-                ],
-                borderColor: '#161616',
-                borderWidth: 2,
-                hoverOffset: 6
-            }]
-        },
-        options: {
-            responsive: true,
-            cutout: '72%',
-            plugins: {
-                legend: {
-                    position: 'bottom',
-                    labels: { font: { size: 11 }, padding: 12, boxWidth: 10, boxHeight: 10 }
-                },
-                tooltip: { backgroundColor: '#1a1a1a', borderColor: '#333', borderWidth: 1 }
+                y: { grid: { color: gridColor }, ticks: { font: { size: 11 }, stepSize: 1 } }
             }
         }
     });

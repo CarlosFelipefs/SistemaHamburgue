@@ -7,13 +7,13 @@ namespace SistemaHamburgueria.Migrations
     using System.Resources;
     
     [GeneratedCode("EntityFramework.Migrations", "6.5.1")]
-    public sealed partial class CorrecaoModelo : IMigrationMetadata
+    public sealed partial class initial : IMigrationMetadata
     {
-        private readonly ResourceManager Resources = new ResourceManager(typeof(CorrecaoModelo));
+        private readonly ResourceManager Resources = new ResourceManager(typeof(initial));
         
         string IMigrationMetadata.Id
         {
-            get { return "202604292307136_CorrecaoModelo"; }
+            get { return "202605202252233_initial"; }
         }
         
         string IMigrationMetadata.Source

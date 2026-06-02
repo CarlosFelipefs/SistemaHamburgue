@@ -2,9 +2,10 @@
 @{
     ViewBag.Title = "Detalhes do Pedido";
     Layout = "~/Views/Shared/_Layout.cshtml";
+    Response.Charset = "utf-8";
 }
 
-<h2>Pedido #@Model.Id — Mesa @Model.Mesa.Numero</h2>
+<h2>Pedido @Model.Id &larr; Mesa @Model.Mesa.Numero</h2>
 <p><strong>Data:</strong> @Model.DataPedido.ToString("dd/MM/yyyy HH:mm")</p>
 <p><strong>Status:</strong> @Model.StatusPedido</p>
 
@@ -74,7 +75,7 @@
                 </div>
                 <button type="submit" class="btn btn-success"
                         onclick="return confirm('Finalizar pedido?')">
-                    ✔ Finalizar Pedido
+                     Finalizar Pedido
                 </button>
             }
         </div>
@@ -84,7 +85,7 @@
                 @Html.AntiForgeryToken()
                 <button type="submit" class="btn btn-warning mt-4"
                         onclick="return confirm('Cancelar pedido?')">
-                    ✖ Cancelar Pedido
+                     Cancelar Pedido
                 </button>
             }
         </div>
@@ -96,4 +97,4 @@
 }
 
 <hr />
-@Html.ActionLink("← Voltar", "Index", null, new { @class = "btn btn-secondary" })
+@Html.ActionLink("Voltar", "Index", null, new { @class = "btn btn-secondary" })

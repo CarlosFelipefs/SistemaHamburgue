@@ -2,45 +2,98 @@
 @{
     ViewBag.Title = "Pedidos";
     Layout = "~/Views/Shared/_Layout.cshtml";
+    Response.Charset = "utf-8";
 }
-
-<h2>Pedidos</h2>
 
 @if (TempData["Sucesso"] != null)
 {
-    <div class="alert alert-success">@TempData["Sucesso"]</div>
+    <div style="background:rgba(76,175,80,0.1);border:1px solid rgba(76,175,80,0.2);color:#4caf50;border-radius:8px;padding:10px 16px;margin-bottom:16px;font-size:13px;">
+        ✓ @TempData["Sucesso"]
+    </div>
 }
 @if (TempData["Erro"] != null)
 {
-    <div class="alert alert-danger">@TempData["Erro"]</div>
+    <div style="background:rgba(224,80,80,0.1);border:1px solid rgba(224,80,80,0.2);color:#e05050;border-radius:8px;padding:10px 16px;margin-bottom:16px;font-size:13px;">
+        ⚠ @TempData["Erro"]
+    </div>
 }
 
-@Html.ActionLink("+ Novo Pedido", "Create", null, new { @class = "btn btn-primary mb-3" })
-
-<table class="table table-striped">
-    <thead>
-        <tr>
-            <th>#</th>
-            <th>Mesa</th>
-            <th>Data</th>
-            <th>Total</th>
-            <th>Status</th>
-            <th>Ações</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var p in Model)
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <span class="card-title" style="font-size:15px;">Pedidos</span>
+        @Html.ActionLink("+ Novo Pedido", "Create", null, new
         {
-            <tr>
-                <td>@p.Id</td>
-                <td>Mesa @p.Mesa.Numero</td>
-                <td>@p.DataPedido.ToString("dd/MM/yyyy HH:mm")</td>
-                <td>R$ @p.ValorTotal.ToString("F2")</td>
-                <td>@p.StatusPedido</td>
-                <td>
-                    @Html.ActionLink("Detalhes", "Details", new { id = p.Id }, new { @class = "btn btn-sm btn-secondary" })
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+            style = "background:#2e7d32;border:none;color:#fff;border-radius:8px;padding:8px 18px;font-size:13px;font-family:'DM Sans',sans-serif;text-decoration:none;font-weight:500;"
+        })
+    </div>
+    <div class="card-body p-0">
+        <table class="table table-hover mb-0">
+            <thead>
+                <tr>
+                   
+                    <th>Mesa</th>
+                    <th>Data</th>
+                    <th>Total</th>
+                    <th>Status</th>
+                    <th style="text-align:right;">Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (!Model.Any())
+                {
+                    <tr>
+                        <td colspan="6" style="text-align:center;padding:40px;color:#333;font-size:13px;">
+                            Nenhum pedido encontrado.
+                        </td>
+                    </tr>
+                }
+                @foreach (var p in Model)
+                {
+                    <tr>
+                        <td style="color:#444;font-family:'Bebas Neue',sans-serif;font-size:16px;">@p.Id</td>
+                        <td style="color:#ddd;font-weight:500;">Mesa @p.Mesa.Numero</td>
+                        <td style="color:#888;font-size:13px;">@p.DataPedido.ToString("dd/MM/yyyy HH:mm")</td>
+                        <td style="color:#4caf50;font-weight:500;">R$ @p.ValorTotal.ToString("F2")</td>
+                        @{
+                            var statusStyle = "";
+                            var statusText = "";
+
+                            switch (p.StatusPedido)
+                            {
+                                case SistemaHamburgueria.Enums.StatusPedido.EmPreparo:
+                                    statusStyle = "background:rgba(232,101,10,0.12);color:#E8650A;";
+                                    statusText = "Em Preparo";
+                                    break;
+                                case SistemaHamburgueria.Enums.StatusPedido.Pronto:
+                                    statusStyle = "background:rgba(33,150,243,0.12);color:#42a5f5;";
+                                    statusText = "Pronto";
+                                    break;
+                                case SistemaHamburgueria.Enums.StatusPedido.Entregue:
+                                    statusStyle = "background:rgba(76,175,80,0.12);color:#4caf50;";
+                                    statusText = "Entregue";
+                                    break;
+                                case SistemaHamburgueria.Enums.StatusPedido.Cancelado:
+                                    statusStyle = "background:rgba(224,80,80,0.12);color:#e05050;";
+                                    statusText = "Cancelado";
+                                    break;
+                                default:
+                                    statusStyle = "background:rgba(120,120,120,0.12);color:#888;";
+                                    statusText = p.StatusPedido.ToString();
+                                    break;
+                            }
+                        }
+                        <span style="@statusStyle font-size:11px;padding:3px 10px;border-radius:20px;display:inline-block;">
+                            @statusText
+                        </span>
+                        <td style="text-align:right;">
+                            @Html.ActionLink("Detalhes", "Details", new { id = p.Id }, new
+                            {
+                                style = "background:#1f1f1f;border:1px solid #2a2a2a;color:#ccc;border-radius:6px;padding:5px 12px;font-size:12px;text-decoration:none;"
+                            })
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
