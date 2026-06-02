@@ -1,6 +1,6 @@
-@model IEnumerable<SistemaHamburgueria.Models.Funcionario>
+﻿@model IEnumerable<SistemaHamburgueria.Models.Ingrediente>
 @{
-    ViewBag.Title = "Funcionários";
+    ViewBag.Title = "Ingredientes";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
@@ -19,8 +19,8 @@
 
 <div class="card">
     <div class="card-header d-flex justify-content-between align-items-center">
-        <span class="card-title" style="font-size:15px;">Funcionarios</span>
-        @Html.ActionLink("+ Novo Funcionario", "Create", null, new
+        <span class="card-title" style="font-size:15px;">Ingredientes</span>
+        @Html.ActionLink("+ Novo Ingrediente", "Create", null, new
         {
             style = "background:#2e7d32;border:none;color:#fff;border-radius:8px;padding:8px 18px;font-size:13px;font-family:'DM Sans',sans-serif;text-decoration:none;font-weight:500;"
         })
@@ -30,36 +30,42 @@
             <thead>
                 <tr>
                     <th>Nome</th>
-                    <th>Cargo</th>
-                    <th>E-mail (Login)</th>
-                    <th style="text-align:right;">Acoes</th>
+                    <th>Unidade</th>
+                    <th>Estoque</th>
+                    <th>Custo</th>
+                    <th style="text-align:right;">Ações</th>
                 </tr>
             </thead>
             <tbody>
                 @if (!Model.Any())
                 {
                     <tr>
-                        <td colspan="4" style="text-align:center;padding:40px;color:#555;font-size:13px;">
-                            Nenhum funcionário encontrado.
+                        <td colspan="5" style="text-align:center;padding:40px;color:#555;font-size:13px;">
+                            Nenhum ingrediente encontrado.
                         </td>
                     </tr>
                 }
-                @foreach (var f in Model)
+                @foreach (var i in Model)
                 {
                     <tr>
-                        <td style="font-weight:500;">@f.Nome</td>
+                        <td style="font-weight:500;">@i.nome</td>
                         <td>
                             <span style="background:rgba(232,101,10,0.12);color:#E8650A;font-size:11px;padding:3px 10px;border-radius:20px;display:inline-block;">
-                                @f.Cargo
+                                @i.unidade.ToString()
                             </span>
                         </td>
-                        <td style="font-size:13px;">@f.login</td>
+                        <td style="font-size:13px;">@i.QuantidadeEstoque</td>
+                        <td style="color:#4caf50;font-weight:500;">R$ @i.custo.ToString("F2")</td>
                         <td style="text-align:right;">
-                            @Html.ActionLink("Editar", "Edit", new { id = f.Id }, new
+                            @Html.ActionLink("Detalhes", "Details", new { id = i.id }, new
                             {
-                                style = "background:#1f1f1f;border:1px solid #2a2a2a;color:#ccc;border-radius:6px;padding:5px 12px;font-size:12px;text-decoration:none;margin-right:6px;"
+                                style = "background:#1f1f1f;border:1px solid #2a2a2a;color:#ccc;border-radius:6px;padding:5px 12px;font-size:12px;text-decoration:none;margin-right:4px;"
                             })
-                            @Html.ActionLink("Excluir", "Delete", new { id = f.Id }, new
+                            @Html.ActionLink("Editar", "Edit", new { id = i.id }, new
+                            {
+                                style = "background:#1f1f1f;border:1px solid #2a2a2a;color:#ccc;border-radius:6px;padding:5px 12px;font-size:12px;text-decoration:none;margin-right:4px;"
+                            })
+                            @Html.ActionLink("Excluir", "Delete", new { id = i.id }, new
                             {
                                 style = "background:rgba(224,80,80,0.1);border:1px solid rgba(224,80,80,0.2);color:#e05050;border-radius:6px;padding:5px 12px;font-size:12px;text-decoration:none;"
                             })

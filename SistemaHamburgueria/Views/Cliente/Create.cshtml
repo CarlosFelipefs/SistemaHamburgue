@@ -3,32 +3,127 @@
     ViewBag.Title = "Novo Cliente";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
-
 <h2>Novo Cliente</h2>
-
 @using (Html.BeginForm())
 {
     @Html.AntiForgeryToken()
     @Html.ValidationSummary(false, "", new { @class = "alert alert-danger" })
+
+    <h5 class="mt-2 mb-3 text-muted">Dados Pessoais</h5>
 
     <div class="form-group mb-3">
         @Html.LabelFor(m => m.Nome, new { @class = "form-label" })
         @Html.TextBoxFor(m => m.Nome, new { @class = "form-control" })
         @Html.ValidationMessageFor(m => m.Nome, "", new { @class = "text-danger" })
     </div>
-
     <div class="form-group mb-3">
         @Html.LabelFor(m => m.Telefone, new { @class = "form-label" })
         @Html.TextBoxFor(m => m.Telefone, new { @class = "form-control" })
         @Html.ValidationMessageFor(m => m.Telefone, "", new { @class = "text-danger" })
     </div>
-
     <div class="form-group mb-3">
         @Html.LabelFor(m => m.Email, new { @class = "form-label" })
         @Html.TextBoxFor(m => m.Email, new { @class = "form-control", type = "email" })
         @Html.ValidationMessageFor(m => m.Email, "", new { @class = "text-danger" })
     </div>
 
+    <hr />
+    <h5 class="mb-3 text-muted">Endereço</h5>
+    <div class="form-group mb-3">
+        <label class="form-label">CEP</label>
+        <div class="input-group" style="max-width: 250px;">
+            @Html.TextBox("Endereco.CEP", null, new
+            {
+                @class = "form-control",
+                id = "cep",
+                placeholder = "00000-000",
+                maxlength = "9"
+            })
+            <button type="button" class="btn btn-outline-secondary" onclick="buscarCep()">
+                <span id="cep-spinner" class="spinner-border spinner-border-sm d-none" role="status"></span>
+                <span id="cep-icon">🔍</span>
+            </button>
+        </div>
+        <div id="cep-erro" class="text-danger mt-1 d-none">CEP não encontrado.</div>
+    </div>
+
+    <div class="form-group mb-3">
+        <label class="form-label">Rua</label>
+        @Html.TextBox("Endereco.Rua", null, new { @class = "form-control", id = "rua" })
+    </div>
+
+    <div class="row mb-3">
+        <div class="col-md-3 form-group">
+            <label class="form-label">Número</label>
+            @Html.TextBox("Endereco.Numero", null, new { @class = "form-control", id = "numero" })
+        </div>
+        <div class="col-md-5 form-group">
+            <label class="form-label">Bairro</label>
+            @Html.TextBox("Endereco.Bairro", null, new { @class = "form-control", id = "bairro" })
+        </div>
+        <div class="col-md-4 form-group">
+            <label class="form-label">Cidade</label>
+            @Html.TextBox("Endereco.Cidade", null, new { @class = "form-control", id = "cidade" })
+        </div>
+    </div>
+
     <button type="submit" class="btn btn-success">Salvar</button>
     @Html.ActionLink("Cancelar", "Index", null, new { @class = "btn btn-secondary ms-2" })
+}
+
+@section Scripts {
+    <script>
+    // Máscara automática no CEP
+    document.getElementById('cep').addEventListener('input', function () {
+        let v = this.value.replace(/\D/g, '').substring(0, 8);
+        if (v.length > 5) v = v.slice(0, 5) + '-' + v.slice(5);
+        this.value = v;
+
+        if (v.replace('-', '').length === 8) buscarCep();
+    });
+
+    async function buscarCep() {
+        const cepRaw = document.getElementById('cep').value.replace(/\D/g, '');
+        const erroEl = document.getElementById('cep-erro');
+        const spinner = document.getElementById('cep-spinner');
+        const icon = document.getElementById('cep-icon');
+
+        erroEl.classList.add('d-none');
+
+        if (cepRaw.length !== 8) return;
+
+        // Mostra spinner
+        spinner.classList.remove('d-none');
+        icon.classList.add('d-none');
+
+        try {
+            const res = await fetch(`https://viacep.com.br/ws/${cepRaw}/json/`);
+            const data = await res.json();
+
+            if (data.erro) {
+                erroEl.classList.remove('d-none');
+                limparCampos();
+            } else {
+                document.getElementById('rua').value    = data.logradouro || '';
+                document.getElementById('bairro').value = data.bairro     || '';
+                document.getElementById('cidade').value = data.localidade  || '';
+
+                // Foca no campo Número após preenchimento automático
+                document.getElementById('numero').focus();
+            }
+        } catch (e) {
+            erroEl.textContent = 'Erro ao consultar o CEP. Tente novamente.';
+            erroEl.classList.remove('d-none');
+        } finally {
+            spinner.classList.add('d-none');
+            icon.classList.remove('d-none');
+        }
+    }
+
+    function limparCampos() {
+        ['rua', 'bairro', 'cidade'].forEach(id => {
+            document.getElementById(id).value = '';
+        });
+    }
+    </script>
 }

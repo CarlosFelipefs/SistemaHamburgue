@@ -1,52 +1,115 @@
 @model IEnumerable<SistemaHamburgueria.Models.Estoque>
 @{
-    ViewBag.Title = "Controle de Estoque";
+    ViewBag.Title = "Estoque";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h2>Controle de Estoque</h2>
-
 @if (TempData["Sucesso"] != null)
 {
-    <div class="alert alert-success">@TempData["Sucesso"]</div>
+    <div style="background:rgba(76,175,80,0.1);border:1px solid rgba(76,175,80,0.2);color:#4caf50;border-radius:8px;padding:10px 16px;margin-bottom:16px;font-size:13px;">
+        ? @TempData["Sucesso"]
+    </div>
 }
 @if (TempData["Erro"] != null)
 {
-    <div class="alert alert-danger">@TempData["Erro"]</div>
+    <div style="background:rgba(224,80,80,0.1);border:1px solid rgba(224,80,80,0.2);color:#e05050;border-radius:8px;padding:10px 16px;margin-bottom:16px;font-size:13px;">
+        ? @TempData["Erro"]
+    </div>
 }
 
-@Html.ActionLink("+ Cadastrar Estoque", "Create", null, new { @class = "btn btn-primary mb-3" })
+<!-- STATS -->
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="stat-label">Total de Itens</div>
+            <div class="stat-value">@Model.Count()</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card highlight">
+            <div class="stat-label">Em Estoque</div>
+            <div class="stat-value">@Model.Count(e => e.QuantidadeDisponivel > 5)</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="stat-label">Estoque Baixo</div>
+            <div class="stat-value" style="color:#E8650A;">@Model.Count(e => e.QuantidadeDisponivel > 0 && e.QuantidadeDisponivel <= 5)</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="stat-label">Sem Estoque</div>
+            <div class="stat-value" style="color:#e05050;">@Model.Count(e => e.QuantidadeDisponivel == 0)</div>
+        </div>
+    </div>
+</div>
 
-<table class="table table-striped table-bordered">
-    <thead class="thead-dark">
-        <tr>
-            <th>Produto</th>
-            <th>Quantidade DisponÃ­vel</th>
-            <th>Ãšltima AtualizaÃ§Ã£o</th>
-            <th>AÃ§Ãµes</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var e in Model)
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <span class="card-title" style="font-size:15px;">Controle de Estoque</span>
+        @Html.ActionLink("+ Cadastrar Estoque", "Create", null, new
         {
-            <tr class="@(e.QuantidadeDisponivel == 0 ? "table-danger" : e.QuantidadeDisponivel <= 5 ? "table-warning" : "")">
-                <td>@e.Produto.Nome</td>
-                <td>
-                    @e.QuantidadeDisponivel
-                    @if (e.QuantidadeDisponivel == 0)
-                    {
-                        <span class="badge badge-danger ms-2">SEM ESTOQUE</span>
-                    }
-                    else if (e.QuantidadeDisponivel <= 5)
-                    {
-                        <span class="badge badge-warning ms-2">BAIXO</span>
-                    }
-                </td>
-                <td>@e.DataAtualizacao.ToString("dd/MM/yyyy HH:mm")</td>
-                <td>
-                    @Html.ActionLink("Ajustar", "Ajustar", new { id = e.Id }, new { @class = "btn btn-sm btn-warning" })
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+            style = "background:#2e7d32;border:none;color:#fff;border-radius:8px;padding:8px 18px;font-size:13px;font-family:'DM Sans',sans-serif;text-decoration:none;font-weight:500;"
+        })
+    </div>
+    <div class="card-body p-0">
+        <table class="table table-hover mb-0">
+            <thead>
+                <tr>
+                    <th>Produto</th>
+                    <th>Quantidade</th>
+                    <th>Última Atualização</th>
+                    <th style="text-align:right;">Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (!Model.Any())
+                {
+                    <tr>
+                        <td colspan="4" style="text-align:center;padding:40px;color:#555;font-size:13px;">
+                            Nenhum item no estoque.
+                        </td>
+                    </tr>
+                }
+                @foreach (var e in Model)
+                {
+                    <tr>
+                        <td style="font-weight:500;">@e.Produto.Nome</td>
+                        <td>
+                            <div style="display:flex;align-items:center;gap:10px;">
+                                @if (e.QuantidadeDisponivel == 0)
+                                {
+                                    <span style="background:rgba(224,80,80,0.12);color:#e05050;font-size:11px;padding:3px 10px;border-radius:20px;">
+                                        SEM ESTOQUE
+                                    </span>
+                                }
+                                else if (e.QuantidadeDisponivel <= 5)
+                                {
+                                    <span style="font-weight:500;color:#E8650A;">@e.QuantidadeDisponivel</span>
+                                    <span style="background:rgba(232,101,10,0.12);color:#E8650A;font-size:11px;padding:3px 10px;border-radius:20px;">
+                                        BAIXO
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span style="font-weight:500;color:#4caf50;">@e.QuantidadeDisponivel</span>
+                                    <span style="background:rgba(76,175,80,0.12);color:#4caf50;font-size:11px;padding:3px 10px;border-radius:20px;">
+                                        OK
+                                    </span>
+                                }
+                            </div>
+                        </td>
+                        <td style="font-size:13px;color:#666;">@e.DataAtualizacao.ToString("dd/MM/yyyy HH:mm")</td>
+                        <td style="text-align:right;">
+                            @Html.ActionLink("Ajustar", "Ajustar", new { id = e.Id }, new
+                            {
+                                style = "background:#1f1f1f;border:1px solid #2a2a2a;color:#ccc;border-radius:6px;padding:5px 12px;font-size:12px;text-decoration:none;"
+                            })
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

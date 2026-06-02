@@ -1,0 +1,166 @@
+﻿@model SistemaHamburgueria.Models.Cliente
+@{
+    ViewBag.Title = "Editar Cliente";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var endereco = ViewBag.Endereco as SistemaHamburgueria.Models.Endereco ?? new SistemaHamburgueria.Models.Endereco();
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:2px;color:#E8650A;text-transform:uppercase;">Clientes</div>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:2px;color:#f0f0f0;line-height:1;">Editar Cliente</div>
+    </div>
+    @Html.ActionLink("← Voltar", "Index", null, new { @class = "btn btn-sm", style = "background:#1f1f1f;border:1px solid #333;color:#ccc;border-radius:6px;" })
+</div>
+
+<div class="row">
+    <div class="col-md-7">
+        <div class="card">
+            <div class="card-header" style="border-left: 3px solid #E8650A;">
+                <span class="card-title">Dados do Cliente</span>
+            </div>
+            <div class="card-body">
+                @using (Html.BeginForm("Edit", "Cliente", FormMethod.Post))
+                {
+                    @Html.AntiForgeryToken()
+                    @Html.HiddenFor(m => m.Id)
+
+                    if (!ViewData.ModelState.IsValid)
+                    {
+                        <div style="background:rgba(224,80,80,0.1);border:1px solid rgba(224,80,80,0.2);color:#e05050;border-radius:8px;padding:10px 16px;margin-bottom:16px;font-size:13px;">
+                            ⚠ Corrija os erros antes de continuar.
+                        </div>
+                    }
+
+                    <div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#E8650A;margin-bottom:12px;font-family:'Bebas Neue',sans-serif;">
+                        Dados Pessoais
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Nome</label>
+                        @Html.TextBoxFor(m => m.Nome, new { @class = "form-control", placeholder = "Nome do cliente" })
+                        @Html.ValidationMessageFor(m => m.Nome, "", new { style = "color:#e05050;font-size:12px;" })
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Telefone</label>
+                        @Html.TextBoxFor(m => m.Telefone, new { @class = "form-control", placeholder = "(00) 00000-0000" })
+                        @Html.ValidationMessageFor(m => m.Telefone, "", new { style = "color:#e05050;font-size:12px;" })
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label">E-mail</label>
+                        @Html.TextBoxFor(m => m.Email, new { @class = "form-control", placeholder = "email@exemplo.com", type = "email" })
+                        @Html.ValidationMessageFor(m => m.Email, "", new { style = "color:#e05050;font-size:12px;" })
+                    </div>
+
+                    <hr style="border-color:#1f1f1f;margin-bottom:20px;" />
+
+                    <div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#E8650A;margin-bottom:12px;font-family:'Bebas Neue',sans-serif;">
+                        Endereço
+                    </div>
+    
+                    <div class="mb-3">
+                        <label class="form-label">CEP</label>
+                        <div class="input-group" style="max-width:250px;">
+                            <input type="text" id="cep" name="Endereco.CEP"
+                                   value="@endereco.CEP"
+                                   class="form-control"
+                                   placeholder="00000-000"
+                                   maxlength="9" />
+                            <button type="button" class="btn btn-outline-secondary" onclick="buscarCep()">
+                                <span id="cep-spinner" class="spinner-border spinner-border-sm d-none" role="status"></span>
+                                <span id="cep-icon">🔍</span>
+                            </button>
+                        </div>
+                        <div id="cep-erro" class="d-none" style="color:#e05050;font-size:12px;margin-top:4px;">CEP não encontrado.</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Rua</label>
+                        <input type="text" id="rua" name="Endereco.Rua"
+                               value="@endereco.Rua"
+                               class="form-control" />
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-md-3">
+                            <label class="form-label">Número</label>
+                            <input type="text" id="numero" name="Endereco.Numero"
+                                   value="@endereco.Numero"
+                                   class="form-control" />
+                        </div>
+                        <div class="col-md-5">
+                            <label class="form-label">Bairro</label>
+                            <input type="text" id="bairro" name="Endereco.Bairro"
+                                   value="@endereco.Bairro"
+                                   class="form-control" />
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Cidade</label>
+                            <input type="text" id="cidade" name="Endereco.Cidade"
+                                   value="@endereco.Cidade"
+                                   class="form-control" />
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="submit"
+                                style="flex:1;background:#E8650A;border:none;color:#fff;border-radius:8px;padding:10px;font-size:13px;font-family:'DM Sans',sans-serif;cursor:pointer;font-weight:500;transition:all .15s;"
+                                onmouseover="this.style.background='#d05a08'"
+                                onmouseout="this.style.background='#E8650A'">
+                            Salvar alterações
+                        </button>
+                        @Html.ActionLink("Cancelar", "Index", null, new
+                        {
+                            style = "flex:1;background:#161616;border:1px solid #2a2a2a;color:#ccc;border-radius:8px;padding:10px;font-size:13px;text-align:center;text-decoration:none;display:block;"
+                        })
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+    document.getElementById('cep').addEventListener('input', function () {
+        let v = this.value.replace(/\D/g, '').substring(0, 8);
+        if (v.length > 5) v = v.slice(0, 5) + '-' + v.slice(5);
+        this.value = v;
+        if (v.replace('-', '').length === 8) buscarCep();
+    });
+
+    async function buscarCep() {
+        const cepRaw = document.getElementById('cep').value.replace(/\D/g, '');
+        const erroEl  = document.getElementById('cep-erro');
+        const spinner = document.getElementById('cep-spinner');
+        const icon    = document.getElementById('cep-icon');
+
+        erroEl.classList.add('d-none');
+        if (cepRaw.length !== 8) return;
+
+        spinner.classList.remove('d-none');
+        icon.classList.add('d-none');
+
+        try {
+            const res  = await fetch(`https://viacep.com.br/ws/${cepRaw}/json/`);
+            const data = await res.json();
+
+            if (data.erro) {
+                erroEl.classList.remove('d-none');
+                ['rua', 'bairro', 'cidade'].forEach(id => document.getElementById(id).value = '');
+            } else {
+                document.getElementById('rua').value    = data.logradouro || '';
+                document.getElementById('bairro').value = data.bairro     || '';
+                document.getElementById('cidade').value = data.localidade  || '';
+                document.getElementById('numero').focus();
+            }
+        } catch {
+            erroEl.textContent = 'Erro ao consultar o CEP. Tente novamente.';
+            erroEl.classList.remove('d-none');
+        } finally {
+            spinner.classList.add('d-none');
+            icon.classList.remove('d-none');
+        }
+    }
+    </script>
+}

@@ -25,15 +25,23 @@ namespace SistemaHamburgueria.Models
         public DbSet<Mesa> Mesas { get; set; }
         public DbSet<Pedido> Pedidos { get; set; }
         public DbSet<ItemPedido> ItensPedido { get; set; }
+        public DbSet<ProdutoIngrediente> ProdutoIngredientes { get; set; }
+        public DbSet<Ingrediente> Ingredientes { get; set; }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
-            // Configuração 1:1 Produto -> Estoque
-            modelBuilder.Entity<Produto>()
-                .HasOptional(p => p.Estoque)
-                .WithRequired(e => e.Produto);
+            // Remove a relação 1:1 e usa FK normal
+            modelBuilder.Entity<Estoque>()
+                .HasRequired(e => e.Produto)
+                .WithMany()
+                .HasForeignKey(e => e.ProdutoId);
+
+            modelBuilder.Entity<MovimentacaoEstoque>()
+                .HasRequired(m => m.Produto)
+                .WithMany()
+                .HasForeignKey(m => m.ProdutoId);
         }
 
 

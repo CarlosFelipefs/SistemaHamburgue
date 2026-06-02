@@ -32,64 +32,90 @@ namespace SistemaHamburgueria.Controllers
         }
     }
 
-    // ─── ABRIR NOVO PEDIDO ────────────────────────────────────────
-    public ActionResult Create()
-    {
-        try
+        // ─── ABRIR NOVO PEDIDO ────────────────────────────────────────
+        public ActionResult Create()
         {
-            ViewBag.MesaId = new SelectList(
-                db.Mesas.Where(m => m.StatusMesa == StatusMesa.Livre),
-                "Id", "Numero"
-            );
-            return View();
-        }
-        catch (Exception ex)
-        {
-            System.Diagnostics.Debug.WriteLine($"[Pedido.Create GET] Erro: {ex.Message}");
-            return View("Error");
-        }
-    }
-
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public ActionResult Create(int MesaId)
-    {
-        try
-        {
-            var mesa = db.Mesas.Find(MesaId);
-            if (mesa == null || mesa.StatusMesa != StatusMesa.Livre)
+            try
             {
-                TempData["Erro"] = "Mesa indisponível. Selecione outra.";
+                ViewBag.MesaId = new SelectList(
+                    db.Mesas.Where(m => m.StatusMesa == StatusMesa.Livre),
+                    "Id", "Numero"
+                );
+
+                ViewBag.ClienteId = new SelectList(
+                    db.Clientes.OrderBy(c => c.Nome).ToList(),
+                    "Id", "Nome"
+                );
+
+                // Monta dicionário de endereços para o JavaScript da view
+                var enderecos = db.Clientes
+                    .Include(c => c.Enderecos)
+                    .Where(c => c.Enderecos.Any())
+                    .ToList()
+                    .ToDictionary(
+                        c => c.Id.ToString(),
+                        c => c.Enderecos.Select(e => new {
+                            rua = e.Rua,
+                            numero = e.Numero,
+                            bairro = e.Bairro,
+                            cidade = e.Cidade,
+                            cep = e.CEP
+                        }).FirstOrDefault()
+                    );
+
+                ViewBag.EnderecoJson = Newtonsoft.Json.JsonConvert.SerializeObject(enderecos);
+
+                return View();
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[Pedido.Create GET] Erro: {ex.Message}");
+                return View("Error");
+            }
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult Create(int? MesaId, int? ClienteId, string TipoPedido)
+        {
+            try
+            {
+                // Valida mesa apenas se for pedido na mesa
+                if (TipoPedido == "Mesa")
+                {
+                    var mesa = db.Mesas.Find(MesaId);
+                    if (mesa == null || mesa.StatusMesa != StatusMesa.Livre)
+                    {
+                        TempData["Erro"] = "Mesa indisponível. Selecione outra.";
+                        return RedirectToAction("Create");
+                    }
+                    mesa.StatusMesa = StatusMesa.Ocupada;
+                }
+
+                int? funcId = Session["FuncionarioId"] as int?;
+
+                var pedido = new Pedido
+                {
+                    MesaId = TipoPedido == "Mesa" ? MesaId : (int?)null,
+                    ClienteId = ClienteId,
+                    DataPedido = DateTime.Now,
+                    ValorTotal = 0,
+                    StatusPedido = StatusPedido.EmPreparo,
+                    FuncionarioId = funcId
+                };
+
+                db.Pedidos.Add(pedido);
+                db.SaveChanges();
+
+                return RedirectToAction("AddItem", new { id = pedido.Id });
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[Pedido.Create POST] Erro: {ex.Message}");
+                TempData["Erro"] = "Erro ao abrir pedido. Tente novamente.";
                 return RedirectToAction("Create");
             }
-
-            // Recupera funcionário logado da sessão
-            int? funcId = Session["FuncionarioId"] as int?;
-
-            var pedido = new Pedido
-            {
-                MesaId       = MesaId,
-                DataPedido   = DateTime.Now,
-                ValorTotal   = 0,
-                StatusPedido = StatusPedido.EmPreparo,
-                FuncionarioId = funcId
-            };
-
-            db.Pedidos.Add(pedido);
-
-            mesa.StatusMesa = StatusMesa.Ocupada;
-
-            db.SaveChanges();
-
-            return RedirectToAction("AddItem", new { id = pedido.Id });
         }
-        catch (Exception ex)
-        {
-            System.Diagnostics.Debug.WriteLine($"[Pedido.Create POST] Erro: {ex.Message}");
-            TempData["Erro"] = "Erro ao abrir pedido. Tente novamente.";
-            return RedirectToAction("Create");
-        }
-    }
 
         // ─── ADICIONAR ITEM ───────────────────────────────────────────
         public ActionResult AddItem(int id)

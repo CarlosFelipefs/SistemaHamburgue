@@ -1,29 +1,168 @@
 ﻿@model SistemaHamburgueria.Models.Produto
-
 @{
+    ViewBag.Title = "Editar Produto";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<div class="card p-4 shadow-sm">
-    <h4>Editar Produto</h4>
-
-    @using (Html.BeginForm())
-    {
-        @Html.AntiForgeryToken()
-
-        @Html.HiddenFor(m => m.Id)
-
-        <div class="mb-3">
-            @Html.LabelFor(m => m.Nome)
-            @Html.TextBoxFor(m => m.Nome, new { @class = "form-control" })
-        </div>
-
-        <div class="mb-3">
-            @Html.LabelFor(m => m.Preco)
-            @Html.TextBoxFor(m => m.Preco, new { @class = "form-control" })
-        </div>
-
-        <button class="btn btn-primary">Salvar</button>
-        <a href="/Produto" class="btn btn-secondary">Voltar</a>
-    }
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:2px;color:#E8650A;text-transform:uppercase;">Cardápio</div>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:2px;color:#f0f0f0;line-height:1;">Editar Produto</div>
+    </div>
+    @Html.ActionLink("← Voltar", "Index", null, new { @class = "btn btn-sm", style = "background:#1f1f1f;border:1px solid #333;color:#ccc;border-radius:6px;" })
 </div>
+
+@{
+    var ingredientesVinculados = Model.ProdutoIngredientes?.ToDictionary(pi => pi.IngredienteId, pi => pi.Quantidade)
+                                 ?? new Dictionary<int, decimal>();
+}
+
+<div class="row g-3">
+    <!-- DADOS DO PRODUTO -->
+    <div class="col-md-5">
+        <div class="card">
+            <div class="card-header" style="border-left:3px solid #E8650A;">
+                <span class="card-title">Dados do Produto</span>
+            </div>
+            <div class="card-body">
+                @using (Html.BeginForm("Edit", "Produto", FormMethod.Post, new { id = "formProduto" }))
+                {
+                    @Html.AntiForgeryToken()
+                    @Html.HiddenFor(m => m.Id)
+
+                    if (!ViewData.ModelState.IsValid)
+                    {
+                        <div style="background:rgba(224,80,80,0.1);border:1px solid rgba(224,80,80,0.2);color:#e05050;border-radius:8px;padding:10px 16px;margin-bottom:16px;font-size:13px;">
+                            ⚠ Corrija os erros antes de continuar.
+                        </div>
+                    }
+
+                    <div class="mb-3">
+                        <label class="form-label">Nome</label>
+                        @Html.TextBoxFor(m => m.Nome, new { @class = "form-control" })
+                        @Html.ValidationMessageFor(m => m.Nome, "", new { style = "color:#e05050;font-size:12px;" })
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Descrição</label>
+                        @Html.TextAreaFor(m => m.Descricao, new { @class = "form-control", rows = "3" })
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Preço (R$)</label>
+                        @Html.TextBoxFor(m => m.Preco, new { @class = "form-control", type = "number", step = "0.01", min = "0.01" })
+                        @Html.ValidationMessageFor(m => m.Preco, "", new { style = "color:#e05050;font-size:12px;" })
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Categoria</label>
+                        @Html.DropDownList("CategoriaId", null, "-- Selecione --", new { @class = "form-select" })
+                        @Html.ValidationMessageFor(m => m.CategoriaId, "", new { style = "color:#e05050;font-size:12px;" })
+                    </div>
+
+                    <div id="ingredientesHidden"></div>
+
+                    <div class="d-flex gap-2 mt-4">
+                        <button type="submit"
+                                style="flex:1;background:#E8650A;border:none;color:#fff;border-radius:8px;padding:10px;font-size:13px;font-family:'DM Sans',sans-serif;cursor:pointer;font-weight:500;"
+                                onmouseover="this.style.background='#d05a08'"
+                                onmouseout="this.style.background='#E8650A'">
+                            Salvar alterações
+                        </button>
+                        @Html.ActionLink("Cancelar", "Index", null, new
+                        {
+                            style = "flex:1;background:#161616;border:1px solid #2a2a2a;color:#ccc;border-radius:8px;padding:10px;font-size:13px;text-align:center;text-decoration:none;display:block;"
+                        })
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- INGREDIENTES -->
+    <div class="col-md-7">
+        <div class="card">
+            <div class="card-header">
+                <span class="card-title">Ingredientes</span>
+            </div>
+            <div class="card-body p-0">
+                <table class="table table-hover mb-0">
+                    <thead>
+                        <tr>
+                            <th style="width:40px;"></th>
+                            <th>Ingrediente</th>
+                            <th>Unidade</th>
+                            <th style="width:130px;">Quantidade</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var ing in ViewBag.Ingredientes as IEnumerable<SistemaHamburgueria.Models.Ingrediente>)
+                        {
+                            var vinculado = ingredientesVinculados.ContainsKey(ing.id);
+                            var qtd = vinculado ? ingredientesVinculados[ing.id] : 0;
+                            <tr>
+                                <td>
+                                    <input type="checkbox" class="ing-check"
+                                           data-id="@ing.id"
+                                           @(vinculado ? "checked" : "")
+                                           style="width:16px;height:16px;accent-color:#E8650A;cursor:pointer;" />
+                                </td>
+                                <td style="font-weight:500;">@ing.nome</td>
+                                <td>
+                                    <span style="background:rgba(232,101,10,0.12);color:#E8650A;font-size:11px;padding:3px 10px;border-radius:20px;display:inline-block;">
+                                        @ing.unidade.ToString()
+                                    </span>
+                                </td>
+                                <td>
+                                    <input type="number" class="form-control ing-qty"
+                                           data-id="@ing.id"
+                                           min="0" step="0.01"
+                                           value="@qtd"
+                                           style="font-size:13px;padding:5px 8px;@(!vinculado ? "opacity:0.3;pointer-events:none;" : "")" />
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.querySelectorAll('.ing-check').forEach(function (cb) {
+        cb.addEventListener('change', function () {
+            var qty = document.querySelector('.ing-qty[data-id="' + this.dataset.id + '"]');
+            if (this.checked) {
+                qty.style.opacity = '1';
+                qty.style.pointerEvents = 'auto';
+                qty.value = qty.value == '0' ? '1' : qty.value;
+            } else {
+                qty.style.opacity = '0.3';
+                qty.style.pointerEvents = 'none';
+                qty.value = '0';
+            }
+        });
+    });
+
+    document.getElementById('formProduto').addEventListener('submit', function () {
+        var container = document.getElementById('ingredientesHidden');
+        container.innerHTML = '';
+        document.querySelectorAll('.ing-check:checked').forEach(function (cb) {
+            var id = cb.dataset.id;
+            var qty = document.querySelector('.ing-qty[data-id="' + id + '"]').value;
+
+            var hidId = document.createElement('input');
+            hidId.type = 'hidden';
+            hidId.name = 'ingredienteIds';
+            hidId.value = id;
+            container.appendChild(hidId);
+
+            var hidQty = document.createElement('input');
+            hidQty.type = 'hidden';
+            hidQty.name = 'quantidades';
+            hidQty.value = qty;
+            container.appendChild(hidQty);
+        });
+    });
+</script>

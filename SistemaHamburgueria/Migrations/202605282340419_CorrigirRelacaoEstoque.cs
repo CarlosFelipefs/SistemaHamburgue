@@ -3,7 +3,7 @@
     using System;
     using System.Data.Entity.Migrations;
     
-    public partial class initial : DbMigration
+    public partial class CorrigirRelacaoEstoque : DbMigration
     {
         public override void Up()
         {
@@ -30,19 +30,6 @@
                 .PrimaryKey(t => t.Id)
                 .ForeignKey("dbo.Categorias", t => t.CategoriaId, cascadeDelete: true)
                 .Index(t => t.CategoriaId);
-            
-            CreateTable(
-                "dbo.Estoques",
-                c => new
-                    {
-                        Id = c.Int(nullable: false),
-                        ProdutoId = c.Int(nullable: false),
-                        QuantidadeDisponivel = c.Int(nullable: false),
-                        DataAtualizacao = c.DateTime(nullable: false),
-                    })
-                .PrimaryKey(t => t.Id)
-                .ForeignKey("dbo.Produtoes", t => t.Id)
-                .Index(t => t.Id);
             
             CreateTable(
                 "dbo.ItemPedidoes",
@@ -142,6 +129,49 @@
                         TipoMovimentacao = c.Int(nullable: false),
                         Quantidade = c.Int(nullable: false),
                         DataMovimentacao = c.DateTime(nullable: false),
+                        Produto_Id = c.Int(),
+                    })
+                .PrimaryKey(t => t.Id)
+                .ForeignKey("dbo.Produtoes", t => t.ProdutoId, cascadeDelete: true)
+                .ForeignKey("dbo.Produtoes", t => t.Produto_Id)
+                .Index(t => t.ProdutoId)
+                .Index(t => t.Produto_Id);
+            
+            CreateTable(
+                "dbo.ProdutoIngredientes",
+                c => new
+                    {
+                        Id = c.Int(nullable: false, identity: true),
+                        ProdutoId = c.Int(nullable: false),
+                        IngredienteId = c.Int(nullable: false),
+                        Quantidade = c.Decimal(nullable: false, precision: 18, scale: 2),
+                    })
+                .PrimaryKey(t => t.Id)
+                .ForeignKey("dbo.Ingredientes", t => t.IngredienteId, cascadeDelete: true)
+                .ForeignKey("dbo.Produtoes", t => t.ProdutoId, cascadeDelete: true)
+                .Index(t => t.ProdutoId)
+                .Index(t => t.IngredienteId);
+            
+            CreateTable(
+                "dbo.Ingredientes",
+                c => new
+                    {
+                        id = c.Int(nullable: false, identity: true),
+                        nome = c.String(),
+                        QuantidadeEstoque = c.Int(nullable: false),
+                        unidade = c.Int(nullable: false),
+                        custo = c.Decimal(nullable: false, precision: 18, scale: 2),
+                    })
+                .PrimaryKey(t => t.id);
+            
+            CreateTable(
+                "dbo.Estoques",
+                c => new
+                    {
+                        Id = c.Int(nullable: false, identity: true),
+                        ProdutoId = c.Int(nullable: false),
+                        QuantidadeDisponivel = c.Int(nullable: false),
+                        DataAtualizacao = c.DateTime(nullable: false),
                     })
                 .PrimaryKey(t => t.Id)
                 .ForeignKey("dbo.Produtoes", t => t.ProdutoId, cascadeDelete: true)
@@ -151,6 +181,10 @@
         
         public override void Down()
         {
+            DropForeignKey("dbo.Estoques", "ProdutoId", "dbo.Produtoes");
+            DropForeignKey("dbo.ProdutoIngredientes", "ProdutoId", "dbo.Produtoes");
+            DropForeignKey("dbo.ProdutoIngredientes", "IngredienteId", "dbo.Ingredientes");
+            DropForeignKey("dbo.MovimentacaoEstoques", "Produto_Id", "dbo.Produtoes");
             DropForeignKey("dbo.MovimentacaoEstoques", "ProdutoId", "dbo.Produtoes");
             DropForeignKey("dbo.ItemPedidoes", "ProdutoId", "dbo.Produtoes");
             DropForeignKey("dbo.Pedidoes", "MesaId", "dbo.Mesas");
@@ -159,8 +193,11 @@
             DropForeignKey("dbo.Pedidoes", "ClienteId", "dbo.Clientes");
             DropForeignKey("dbo.Pedidoes", "EnderecoId", "dbo.Enderecoes");
             DropForeignKey("dbo.Enderecoes", "ClienteId", "dbo.Clientes");
-            DropForeignKey("dbo.Estoques", "Id", "dbo.Produtoes");
             DropForeignKey("dbo.Produtoes", "CategoriaId", "dbo.Categorias");
+            DropIndex("dbo.Estoques", new[] { "ProdutoId" });
+            DropIndex("dbo.ProdutoIngredientes", new[] { "IngredienteId" });
+            DropIndex("dbo.ProdutoIngredientes", new[] { "ProdutoId" });
+            DropIndex("dbo.MovimentacaoEstoques", new[] { "Produto_Id" });
             DropIndex("dbo.MovimentacaoEstoques", new[] { "ProdutoId" });
             DropIndex("dbo.Enderecoes", new[] { "ClienteId" });
             DropIndex("dbo.Pedidoes", new[] { "EnderecoId" });
@@ -169,8 +206,10 @@
             DropIndex("dbo.Pedidoes", new[] { "ClienteId" });
             DropIndex("dbo.ItemPedidoes", new[] { "ProdutoId" });
             DropIndex("dbo.ItemPedidoes", new[] { "PedidoId" });
-            DropIndex("dbo.Estoques", new[] { "Id" });
             DropIndex("dbo.Produtoes", new[] { "CategoriaId" });
+            DropTable("dbo.Estoques");
+            DropTable("dbo.Ingredientes");
+            DropTable("dbo.ProdutoIngredientes");
             DropTable("dbo.MovimentacaoEstoques");
             DropTable("dbo.Mesas");
             DropTable("dbo.Funcionarios");
@@ -178,7 +217,6 @@
             DropTable("dbo.Clientes");
             DropTable("dbo.Pedidoes");
             DropTable("dbo.ItemPedidoes");
-            DropTable("dbo.Estoques");
             DropTable("dbo.Produtoes");
             DropTable("dbo.Categorias");
         }

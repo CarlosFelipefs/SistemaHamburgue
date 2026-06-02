@@ -5,7 +5,7 @@
     Response.Charset = "utf-8";
 }
 
-<h2>Pedido #@Model.Id — Mesa @Model.Mesa.Numero</h2>
+<h2>Pedido #@Model.Id — @(Model.Mesa != null ? "Mesa " + Model.Mesa.Numero : "🛵 Delivery")</h2>
 <p><strong>Total atual:</strong> R$ @Model.ValorTotal.ToString("F2")</p>
 
 @if (TempData["Sucesso"] != null)

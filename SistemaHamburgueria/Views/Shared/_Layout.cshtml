@@ -234,19 +234,18 @@
             border-bottom: 1px solid #1f1f1f;
             font-weight: 500;
             padding: 10px 12px;
+
         }
 
-        .table td {
-            border-bottom: 1px solid #1a1a1a;
-            padding: 10px 12px;
-            font-size: 13.5px;
-            color: #bbb;
-            vertical-align: middle;
-        }
+            .table td {
+                border-bottom: 1px solid #1a1a1a;
+                padding: 10px 12px;
+                font-size: 13.5px;
+                color: #ccc;
+                vertical-align: middle;
+                background: #1a1a1a;
+            }
 
-        .table-hover tbody tr:hover td {
-            background: #1a1a1a;
-        }
 
         /* ── BADGES ──────────────────────────────── */
         .badge {
@@ -353,6 +352,9 @@
             <a href="@Url.Action("Index", "Pedido")"><i class="bi bi-receipt"></i> Pedidos</a>
             <a href="@Url.Action("Index", "Produto")"><i class="bi bi-basket"></i> Produtos</a>
             <a href="@Url.Action("Index", "Categoria")"><i class="bi bi-tags"></i> Categorias</a>
+            <a href="@Url.Action("Index", "Ingrediente")">
+                <i class="bi bi-egg-fried"></i> Ingredientes
+            </a>
 
             <div class="nav-label">Gestão</div>
             <a href="@Url.Action("Index", "Cliente")"><i class="bi bi-people"></i> Clientes</a>
@@ -395,5 +397,6 @@
             }
         });
     </script>
+    @RenderSection("Scripts", required: false)
 </body>
 </html>

@@ -1,0 +1,100 @@
+﻿@model SistemaHamburgueria.Models.Ingrediente
+@{
+    ViewBag.Title = "Detalhes do Ingrediente";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:2px;color:#E8650A;text-transform:uppercase;">Ingredientes</div>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:2px;color:#f0f0f0;line-height:1;">@Model.nome</div>
+    </div>
+    @Html.ActionLink("← Voltar", "Index", null, new { @class = "btn btn-sm", style = "background:#1f1f1f;border:1px solid #333;color:#ccc;border-radius:6px;" })
+</div>
+
+<div class="row g-3">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header" style="border-left:3px solid #E8650A;">
+                <span class="card-title">Informações</span>
+            </div>
+            <div class="card-body">
+                <div style="display:flex;flex-direction:column;gap:16px;">
+                    <div>
+                        <div style="font-size:9px;letter-spacing:2px;text-transform:uppercase;color:#444;margin-bottom:3px;">Nome</div>
+                        <div style="font-size:15px;color:#eee;font-weight:500;">@Model.nome</div>
+                    </div>
+                    <div>
+                        <div style="font-size:9px;letter-spacing:2px;text-transform:uppercase;color:#444;margin-bottom:3px;">Unidade</div>
+                        <span style="background:rgba(232,101,10,0.12);color:#E8650A;font-size:11px;padding:3px 10px;border-radius:20px;display:inline-block;">
+                            @Model.unidade.ToString()
+                        </span>
+                    </div>
+                    <div>
+                        <div style="font-size:9px;letter-spacing:2px;text-transform:uppercase;color:#444;margin-bottom:3px;">Estoque</div>
+                        <div style="font-size:15px;color:#eee;">@Model.QuantidadeEstoque</div>
+                    </div>
+                    <div>
+                        <div style="font-size:9px;letter-spacing:2px;text-transform:uppercase;color:#444;margin-bottom:3px;">Custo</div>
+                        <div style="font-size:15px;color:#4caf50;font-weight:500;">R$ @Model.custo.ToString("F2")</div>
+                    </div>
+                </div>
+
+                <div class="d-flex gap-2 mt-4">
+                    @Html.ActionLink("Editar", "Edit", new { id = Model.id }, new
+                    {
+                        style = "flex:1;background:#E8650A;border:none;color:#fff;border-radius:8px;padding:9px;font-size:13px;text-align:center;text-decoration:none;display:block;font-weight:500;"
+                    })
+                    @Html.ActionLink("Excluir", "Delete", new { id = Model.id }, new
+                    {
+                        style = "flex:1;background:rgba(224,80,80,0.1);border:1px solid rgba(224,80,80,0.2);color:#e05050;border-radius:8px;padding:9px;font-size:13px;text-align:center;text-decoration:none;display:block;"
+                    })
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <span class="card-title">Produtos que usam este ingrediente</span>
+            </div>
+            <div class="card-body p-0">
+                <table class="table table-hover mb-0">
+                    <thead>
+                        <tr>
+                            <th>Produto</th>
+                            <th>Categoria</th>
+                            <th>Quantidade</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model.ProdutoIngredientes == null || !Model.ProdutoIngredientes.Any())
+                        {
+                            <tr>
+                                <td colspan="3" style="text-align:center;padding:30px;color:#555;font-size:13px;">
+                                    Nenhum produto usa este ingrediente.
+                                </td>
+                            </tr>
+                        }
+                        else
+                        {
+                            foreach (var pi in Model.ProdutoIngredientes)
+                            {
+                                <tr>
+                                    <td style="font-weight:500;">@pi.Produto.Nome</td>
+                                    <td style="font-size:13px;">@pi.Produto.Categoria.Nome</td>
+                                    <td>
+                                        <span style="background:rgba(76,175,80,0.12);color:#4caf50;font-size:11px;padding:3px 10px;border-radius:20px;display:inline-block;">
+                                            @pi.Quantidade @Model.unidade.ToString()
+                                        </span>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

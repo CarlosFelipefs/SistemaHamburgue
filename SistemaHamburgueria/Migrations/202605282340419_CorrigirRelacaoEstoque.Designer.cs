@@ -6,14 +6,14 @@ namespace SistemaHamburgueria.Migrations
     using System.Data.Entity.Migrations.Infrastructure;
     using System.Resources;
     
-    [GeneratedCode("EntityFramework.Migrations", "6.5.1")]
-    public sealed partial class initial : IMigrationMetadata
+    [GeneratedCode("EntityFramework.Migrations", "6.5.2")]
+    public sealed partial class CorrigirRelacaoEstoque : IMigrationMetadata
     {
-        private readonly ResourceManager Resources = new ResourceManager(typeof(initial));
+        private readonly ResourceManager Resources = new ResourceManager(typeof(CorrigirRelacaoEstoque));
         
         string IMigrationMetadata.Id
         {
-            get { return "202605202252233_initial"; }
+            get { return "202605282340419_CorrigirRelacaoEstoque"; }
         }
         
         string IMigrationMetadata.Source

@@ -28,8 +28,8 @@ namespace SistemaHamburgueria.Models
         public int CategoriaId { get; set; }
         public virtual Categoria Categoria { get; set; }
 
-        public virtual Estoque Estoque { get; set; }
         public virtual ICollection<ItemPedido> ItensPedido { get; set; }
         public virtual ICollection<MovimentacaoEstoque> Movimentacoes { get; set; }
+        public virtual ICollection<ProdutoIngrediente> ProdutoIngredientes { get; set; } = new List<ProdutoIngrediente>();
     }
 }

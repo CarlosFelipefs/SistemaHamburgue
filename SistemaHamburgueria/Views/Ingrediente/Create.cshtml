@@ -1,0 +1,73 @@
+﻿@model SistemaHamburgueria.Models.Ingrediente
+@{
+    ViewBag.Title = "Novo Ingrediente";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:2px;color:#E8650A;text-transform:uppercase;">Ingredientes</div>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:2px;color:#f0f0f0;line-height:1;">Novo Ingrediente</div>
+    </div>
+    @Html.ActionLink("← Voltar", "Index", null, new { @class = "btn btn-sm", style = "background:#1f1f1f;border:1px solid #333;color:#ccc;border-radius:6px;" })
+</div>
+
+<div class="row">
+    <div class="col-md-5">
+        <div class="card">
+            <div class="card-header" style="border-left: 3px solid #E8650A;">
+                <span class="card-title">Dados do Ingrediente</span>
+            </div>
+            <div class="card-body">
+                @using (Html.BeginForm("Create", "Ingrediente", FormMethod.Post))
+                {
+                    @Html.AntiForgeryToken()
+
+                    if (!ViewData.ModelState.IsValid)
+                    {
+                        <div style="background:rgba(224,80,80,0.1);border:1px solid rgba(224,80,80,0.2);color:#e05050;border-radius:8px;padding:10px 16px;margin-bottom:16px;font-size:13px;">
+                            ⚠ Corrija os erros antes de continuar.
+                        </div>
+                    }
+
+                    <div class="mb-3">
+                        <label class="form-label">Nome</label>
+                        @Html.TextBoxFor(m => m.nome, new { @class = "form-control", placeholder = "Ex: Queijo Cheddar" })
+                        @Html.ValidationMessageFor(m => m.nome, "", new { style = "color:#e05050;font-size:12px;" })
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Unidade de Medida</label>
+                        @Html.DropDownListFor(m => m.unidade, ViewBag.Unidades as SelectList, "Selecione...", new { @class = "form-select" })
+                        @Html.ValidationMessageFor(m => m.unidade, "", new { style = "color:#e05050;font-size:12px;" })
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Quantidade em Estoque</label>
+                        @Html.TextBoxFor(m => m.QuantidadeEstoque, new { @class = "form-control", placeholder = "0", type = "number", min = "0" })
+                        @Html.ValidationMessageFor(m => m.QuantidadeEstoque, "", new { style = "color:#e05050;font-size:12px;" })
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Custo (R$)</label>
+                        @Html.TextBoxFor(m => m.custo, new { @class = "form-control", placeholder = "0,00", type = "number", min = "0", step = "0.01" })
+                        @Html.ValidationMessageFor(m => m.custo, "", new { style = "color:#e05050;font-size:12px;" })
+                    </div>
+
+                    <div class="d-flex gap-2 mt-4">
+                        <button type="submit"
+                                style="flex:1;background:#E8650A;border:none;color:#fff;border-radius:8px;padding:10px;font-size:13px;font-family:'DM Sans',sans-serif;cursor:pointer;font-weight:500;"
+                                onmouseover="this.style.background='#d05a08'"
+                                onmouseout="this.style.background='#E8650A'">
+                            Salvar
+                        </button>
+                        @Html.ActionLink("Cancelar", "Index", null, new
+                        {
+                            style = "flex:1;background:#161616;border:1px solid #2a2a2a;color:#ccc;border-radius:8px;padding:10px;font-size:13px;text-align:center;text-decoration:none;display:block;"
+                        })
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>

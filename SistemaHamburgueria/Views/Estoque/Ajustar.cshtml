@@ -1,32 +1,138 @@
-@model SistemaHamburgueria.Models.Estoque
+﻿@model SistemaHamburgueria.Models.Estoque
 @{
     ViewBag.Title = "Ajustar Estoque";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h2>Ajustar Estoque — @Model.Produto.Nome</h2>
-<p><strong>Quantidade atual:</strong> @Model.QuantidadeDisponivel unidades</p>
-
 @if (TempData["Erro"] != null)
 {
-    <div class="alert alert-danger">@TempData["Erro"]</div>
+    <div style="background:rgba(224,80,80,0.1);border:1px solid rgba(224,80,80,0.2);color:#e05050;border-radius:8px;padding:10px 16px;margin-bottom:16px;font-size:13px;">
+        ⚠ @TempData["Erro"]
+    </div>
 }
 
-@using (Html.BeginForm("Ajustar", "Estoque", new { id = Model.Id }, FormMethod.Post))
-{
-    @Html.AntiForgeryToken()
-    <div class="form-group mb-3">
-        <label><strong>Tipo de Movimentação</strong></label>
-        @Html.DropDownList("tipo",
-            new SelectList(Enum.GetValues(typeof(SistemaHamburgueria.Enums.TipoMovimentacao))
-                .Cast<SistemaHamburgueria.Enums.TipoMovimentacao>()
-                .Select(t => new SelectListItem { Value = ((int)t).ToString(), Text = t.ToString() })),
-            new { @class = "form-control" })
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:2px;color:#E8650A;text-transform:uppercase;">Estoque</div>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:2px;color:#f0f0f0;line-height:1;">Ajustar Estoque</div>
     </div>
-    <div class="form-group mb-3">
-        <label><strong>Quantidade</strong></label>
-        <input type="number" name="quantidade" class="form-control" min="1" value="1" required />
+    @Html.ActionLink("← Voltar", "Index", null, new { @class = "btn btn-sm", style = "background:#1f1f1f;border:1px solid #333;color:#ccc;border-radius:6px;" })
+</div>
+
+<div class="row g-3">
+    <!-- INFO DO PRODUTO -->
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header" style="border-left:3px solid #E8650A;">
+                <span class="card-title">Produto</span>
+            </div>
+            <div class="card-body">
+                <div style="display:flex;flex-direction:column;gap:14px;">
+                    <div>
+                        <div style="font-size:9px;letter-spacing:2px;text-transform:uppercase;color:#444;margin-bottom:3px;">Nome</div>
+                        <div style="font-size:16px;color:#eee;font-weight:500;">@Model.Produto.Nome</div>
+                    </div>
+                    <div>
+                        <div style="font-size:9px;letter-spacing:2px;text-transform:uppercase;color:#444;margin-bottom:3px;">Estoque Atual</div>
+                        @if (Model.QuantidadeDisponivel == 0)
+                        {
+                            <div style="font-family:'Bebas Neue',sans-serif;font-size:36px;color:#e05050;line-height:1;">0</div>
+                            <span style="background:rgba(224,80,80,0.12);color:#e05050;font-size:11px;padding:3px 10px;border-radius:20px;">SEM ESTOQUE</span>
+                        }
+                        else if (Model.QuantidadeDisponivel <= 5)
+                        {
+                            <div style="font-family:'Bebas Neue',sans-serif;font-size:36px;color:#E8650A;line-height:1;">@Model.QuantidadeDisponivel</div>
+                            <span style="background:rgba(232,101,10,0.12);color:#E8650A;font-size:11px;padding:3px 10px;border-radius:20px;">ESTOQUE BAIXO</span>
+                        }
+                        else
+                        {
+                            <div style="font-family:'Bebas Neue',sans-serif;font-size:36px;color:#4caf50;line-height:1;">@Model.QuantidadeDisponivel</div>
+                            <span style="background:rgba(76,175,80,0.12);color:#4caf50;font-size:11px;padding:3px 10px;border-radius:20px;">OK</span>
+                        }
+                    </div>
+                    <div>
+                        <div style="font-size:9px;letter-spacing:2px;text-transform:uppercase;color:#444;margin-bottom:3px;">Última Atualização</div>
+                        <div style="font-size:13px;color:#666;">@Model.DataAtualizacao.ToString("dd/MM/yyyy HH:mm")</div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-    <button type="submit" class="btn btn-primary">Confirmar Ajuste</button>
-    @Html.ActionLink("Cancelar", "Index", null, new { @class = "btn btn-secondary ms-2" })
-}
+
+    <!-- FORM DE AJUSTE -->
+    <div class="col-md-5">
+        <div class="card">
+            <div class="card-header">
+                <span class="card-title">Movimentação</span>
+            </div>
+            <div class="card-body">
+                @using (Html.BeginForm("Ajustar", "Estoque", new { id = Model.Id }, FormMethod.Post))
+                {
+                    @Html.AntiForgeryToken()
+
+                    <div class="mb-4">
+                        <label class="form-label">Tipo de Movimentação</label>
+                        <div style="display:flex;gap:10px;">
+                            <label id="labelEntrada" style="flex:1;background:rgba(76,175,80,0.08);border:1px solid rgba(76,175,80,0.2);border-radius:8px;padding:12px;cursor:pointer;text-align:center;transition:all .15s;">
+                                <input type="radio" name="tipo" value="1" style="display:none;" onchange="selecionarTipo(this)" />
+                                <div style="font-size:20px;margin-bottom:4px;">↑</div>
+                                <div style="font-size:13px;color:#4caf50;font-weight:500;">Entrada</div>
+                            </label>
+                            <label id="labelSaida" style="flex:1;background:rgba(224,80,80,0.08);border:1px solid rgba(224,80,80,0.2);border-radius:8px;padding:12px;cursor:pointer;text-align:center;transition:all .15s;">
+                                <input type="radio" name="tipo" value="2" style="display:none;" onchange="selecionarTipo(this)" />
+                                <div style="font-size:20px;margin-bottom:4px;">↓</div>
+                                <div style="font-size:13px;color:#e05050;font-weight:500;">Saída</div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label">Quantidade</label>
+                        <input type="number" name="quantidade" class="form-control"
+                               min="1" value="1"
+                               style="font-size:24px;text-align:center;font-family:'Bebas Neue',sans-serif;letter-spacing:2px;" />
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" id="btnConfirmar"
+                                style="flex:1;background:#E8650A;border:none;color:#fff;border-radius:8px;padding:10px;font-size:13px;font-family:'DM Sans',sans-serif;cursor:pointer;font-weight:500;"
+                                onmouseover="this.style.background='#d05a08'"
+                                onmouseout="this.style.background='#E8650A'">
+                            Confirmar
+                        </button>
+                        @Html.ActionLink("Cancelar", "Index", null, new
+                        {
+                            style = "flex:1;background:#161616;border:1px solid #2a2a2a;color:#ccc;border-radius:8px;padding:10px;font-size:13px;text-align:center;text-decoration:none;display:block;"
+                        })
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Seleciona Entrada por padrão
+    window.addEventListener('DOMContentLoaded', function () {
+        document.querySelector('input[name="tipo"][value="1"]').checked = true;
+        document.getElementById('labelEntrada').style.borderColor = '#4caf50';
+        document.getElementById('labelEntrada').style.background = 'rgba(76,175,80,0.18)';
+    });
+
+    function selecionarTipo(radio) {
+        var labelEntrada = document.getElementById('labelEntrada');
+        var labelSaida = document.getElementById('labelSaida');
+
+        if (radio.value === '1') {
+            labelEntrada.style.borderColor = '#4caf50';
+            labelEntrada.style.background = 'rgba(76,175,80,0.18)';
+            labelSaida.style.borderColor = 'rgba(224,80,80,0.2)';
+            labelSaida.style.background = 'rgba(224,80,80,0.08)';
+        } else {
+            labelSaida.style.borderColor = '#e05050';
+            labelSaida.style.background = 'rgba(224,80,80,0.18)';
+            labelEntrada.style.borderColor = 'rgba(76,175,80,0.2)';
+            labelEntrada.style.background = 'rgba(76,175,80,0.08)';
+        }
+    }
+</script>

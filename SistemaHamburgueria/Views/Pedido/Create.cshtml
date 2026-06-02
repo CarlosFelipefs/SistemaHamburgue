@@ -2,21 +2,178 @@
 @{
     ViewBag.Title = "Novo Pedido";
     Layout = "~/Views/Shared/_Layout.cshtml";
-    Response.Charset = "utf-8";
 }
 
-<h2>Novo Pedido</h2>
-
-@using (Html.BeginForm())
-{
-    @Html.AntiForgeryToken()
-    @Html.ValidationSummary(false, "", new { @class = "alert alert-danger" })
-
-    <div class="form-group mb-3">
-        <label class="form-label">Mesa</label>
-        @Html.DropDownList("MesaId", (SelectList)ViewBag.MesaId, "-- Selecione a Mesa --", new { @class = "form-select" })
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:2px;color:#E8650A;text-transform:uppercase;">Pedidos</div>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:2px;color:#f0f0f0;line-height:1;">Novo Pedido</div>
     </div>
+    @Html.ActionLink("← Voltar", "Index", null, new { @class = "btn btn-sm", style = "background:#1f1f1f;border:1px solid #333;color:#ccc;border-radius:6px;" })
+</div>
 
-    <button type="submit" class="btn btn-success">Abrir Pedido</button>
-    @Html.ActionLink("Cancelar", "Index", null, new { @class = "btn btn-secondary ms-2" })
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header" style="border-left: 3px solid #E8650A;">
+                <span class="card-title">Dados do Pedido</span>
+            </div>
+            <div class="card-body">
+                @using (Html.BeginForm("Create", "Pedido", FormMethod.Post))
+                {
+                    @Html.AntiForgeryToken()
+
+                    if (!ViewData.ModelState.IsValid)
+                    {
+                        <div style="background:rgba(224,80,80,0.1);border:1px solid rgba(224,80,80,0.2);color:#e05050;border-radius:8px;padding:10px 16px;margin-bottom:16px;font-size:13px;">
+                            ⚠ Corrija os erros antes de continuar.
+                        </div>
+                    }
+
+                    
+            <div class="mb-3">
+                <label class="form-label">Cliente</label>
+                @Html.DropDownList("ClienteId",
+                    (SelectList)ViewBag.ClienteId,
+                    "-- Selecione o cliente --",
+                    new { @class = "form-select", id = "clienteSelect" })
+
+                @Html.ActionLink("+ Cadastrar novo cliente", "Create", "Cliente", null, new
+                    {
+                        style = "display:inline-block;margin-top:8px;font-size:12px;color:#42a5f5;text-decoration:none;padding:5px 12px;border:1px solid rgba(66,165,245,0.3);border-radius:6px;background:rgba(66,165,245,0.06);transition:all .15s;",
+                        onmouseover = "this.style.background='rgba(66,165,245,0.12)'",
+                        onmouseout = "this.style.background='rgba(66,165,245,0.06)'"
+                    })
+            </div>
+
+                    
+                    <div class="mb-4" id="tipoPedidoBox" style="display:none;">
+                        <label class="form-label">Tipo de Pedido</label>
+                        <div class="d-flex gap-3 mt-1">
+                            <label id="btnMesa"
+                                   onclick="selecionarTipo('Mesa')"
+                                   style="flex:1;cursor:pointer;border:1px solid #2a2a2a;border-radius:10px;padding:16px;text-align:center;transition:all .2s;background:#161616;">
+                                <div style="font-size:26px;">🍔</div>
+                                <div style="font-size:13px;font-weight:500;color:#ccc;margin-top:6px;">Comer aqui</div>
+                                <div style="font-size:11px;color:#555;margin-top:2px;">Pedido na mesa</div>
+                            </label>
+                            <label id="btnDelivery"
+                                   onclick="selecionarTipo('Delivery')"
+                                   style="flex:1;cursor:pointer;border:1px solid #2a2a2a;border-radius:10px;padding:16px;text-align:center;transition:all .2s;background:#161616;">
+                                <div style="font-size:26px;">🛵</div>
+                                <div style="font-size:13px;font-weight:500;color:#ccc;margin-top:6px;">Delivery</div>
+                                <div style="font-size:11px;color:#555;margin-top:2px;">Entrega no endereço</div>
+                            </label>
+                        </div>
+                        <input type="hidden" id="tipoPedido" name="TipoPedido" value="" />
+                    </div>
+
+            
+                    <div class="mb-4" id="mesaBox" style="display:none;">
+                        <label class="form-label">Mesa</label>
+                        @Html.DropDownList("MesaId",
+                            (SelectList)ViewBag.MesaId,
+                            "-- Selecione a mesa --",
+                            new { @class = "form-select" })
+                    </div>
+
+                    <div id="enderecoBox" style="display:none;">
+                        <div style="background:#0d0d0d;border:1px solid #1f1f1f;border-radius:10px;padding:16px;margin-bottom:16px;" id="enderecoCliente">
+                            <div style="font-size:9px;letter-spacing:2px;text-transform:uppercase;color:#444;margin-bottom:6px;">Endereço de entrega</div>
+                            <div id="enderecoTexto" style="font-size:13px;color:#aaa;font-style:italic;">
+                                Selecione um cliente para ver o endereço cadastrado.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-2 mt-3" id="acoes" style="display:none!important;">
+                        <button type="submit" id="btnAbrir"
+                                style="flex:1;background:#E8650A;border:none;color:#fff;border-radius:8px;padding:10px;font-size:13px;font-family:'DM Sans',sans-serif;cursor:pointer;font-weight:500;transition:all .15s;"
+                                onmouseover="this.style.background='#d05a08'"
+                                onmouseout="this.style.background='#E8650A'">
+                            Abrir Pedido
+                        </button>
+                        @Html.ActionLink("Cancelar", "Index", null, new
+                        {
+                            style = "flex:1;background:#161616;border:1px solid #2a2a2a;color:#ccc;border-radius:8px;padding:10px;font-size:13px;text-align:center;text-decoration:none;display:block;"
+                        })
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+    // Endereços vindos do servidor indexados por ClienteId
+    var enderecos = @Html.Raw(ViewBag.EnderecoJson ?? "{}");
+
+    var tipoSelecionado = '';
+
+    document.getElementById('clienteSelect').addEventListener('change', function () {
+        var clienteId = this.value;
+        var tipoPedidoBox = document.getElementById('tipoPedidoBox');
+
+        if (clienteId) {
+            tipoPedidoBox.style.display = 'block';
+            atualizarEndereco(clienteId);
+        } else {
+            tipoPedidoBox.style.display = 'none';
+            esconderExtras();
+        }
+
+        // Reseta o tipo ao trocar de cliente
+        selecionarTipo('');
+    });
+
+    function selecionarTipo(tipo) {
+        tipoSelecionado = tipo;
+        document.getElementById('tipoPedido').value = tipo;
+
+        var btnMesa     = document.getElementById('btnMesa');
+        var btnDelivery = document.getElementById('btnDelivery');
+        var mesaBox     = document.getElementById('mesaBox');
+        var enderecoBox = document.getElementById('enderecoBox');
+        var acoes       = document.getElementById('acoes');
+
+        // Reset visual dos cards
+        var base = 'flex:1;cursor:pointer;border:1px solid #2a2a2a;border-radius:10px;padding:16px;text-align:center;transition:all .2s;background:#161616;';
+        var ativo = 'flex:1;cursor:pointer;border:1px solid #E8650A;border-radius:10px;padding:16px;text-align:center;transition:all .2s;background:rgba(232,101,10,0.08);';
+
+        btnMesa.style.cssText     = (tipo === 'Mesa')     ? ativo : base;
+        btnDelivery.style.cssText = (tipo === 'Delivery') ? ativo : base;
+
+        mesaBox.style.display     = (tipo === 'Mesa')     ? 'block' : 'none';
+        enderecoBox.style.display = (tipo === 'Delivery') ? 'block' : 'none';
+        acoes.style.display       = tipo ? 'flex'  : 'none';
+    }
+
+    function atualizarEndereco(clienteId) {
+        var el = document.getElementById('enderecoTexto');
+        var end = enderecos[clienteId];
+
+        if (end && end.rua) {
+            el.style.fontStyle = 'normal';
+            el.style.color     = '#ccc';
+            el.innerHTML =
+                '📍 ' + end.rua +
+                (end.numero ? ', ' + end.numero : '') +
+                (end.bairro ? ' — ' + end.bairro : '') +
+                (end.cidade ? ', ' + end.cidade  : '') +
+                (end.cep    ? ' <span style="color:#555;">(' + end.cep + ')</span>' : '');
+        } else {
+            el.style.fontStyle = 'italic';
+            el.style.color     = '#e05050';
+            el.innerHTML       = '⚠ Este cliente não possui endereço cadastrado.';
+        }
+    }
+
+    function esconderExtras() {
+        document.getElementById('mesaBox').style.display     = 'none';
+        document.getElementById('enderecoBox').style.display = 'none';
+        document.getElementById('acoes').style.display       = 'none';
+        tipoSelecionado = '';
+    }
+    </script>
 }

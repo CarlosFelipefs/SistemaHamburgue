@@ -32,14 +32,15 @@
                     <th>#</th>
                     <th>Nome</th>
                     <th>Telefone</th>
-                    <th style="text-align:right;">Acoes</th>
+                    <th>Endereço</th>
+                    <th style="text-align:right;">Ações</th>
                 </tr>
             </thead>
             <tbody>
                 @if (!Model.Any())
                 {
                     <tr>
-                        <td colspan="4" style="text-align:center;padding:40px;color:#333;font-size:13px;">
+                        <td colspan="5" style="text-align:center;padding:40px;color:#333;font-size:13px;">
                             Nenhum cliente cadastrado.
                         </td>
                     </tr>
@@ -47,10 +48,28 @@
                 @{ int i = 1; }
                 @foreach (var item in Model)
                 {
+                    var endereco = item.Enderecos?.FirstOrDefault();
                     <tr>
-                        <td style="color:#444;font-family:'Bebas Neue',sans-serif;font-size:16px;">@i</td>
-                        <td style="color:#ddd;font-weight:500;">@item.Nome</td>
-                        <td style="color:#888;font-size:13px;">@item.Telefone</td>
+                        <td style="font-family:'Bebas Neue',sans-serif;font-size:16px;">@i</td>
+                        <td style="font-weight:500;">@item.Nome</td>
+                        <td style="font-size:13px;">@item.Telefone</td>
+                        <td style="font-size:13px;">
+                            @if (endereco != null)
+                            {
+                                <span title="@endereco.Rua, @endereco.Numero - @endereco.Bairro, @endereco.Cidade">
+                                    📍 @endereco.Rua
+                                    @if (!string.IsNullOrWhiteSpace(endereco.Numero))
+                                    {
+                                        <text>, @endereco.Numero</text>
+                                    }
+                                    — @endereco.Cidade
+                                </span>
+                            }
+                            else
+                            {
+                                <span style="color:#888;font-style:italic;">Não informado</span>
+                            }
+                        </td>
                         <td style="text-align:right;">
                             @Html.ActionLink("Editar", "Edit", new { id = item.Id }, new
                             {

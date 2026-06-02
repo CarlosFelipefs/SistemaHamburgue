@@ -30,11 +30,10 @@
         <table class="table table-hover mb-0">
             <thead>
                 <tr>
-                   
+                    <th>#</th>
                     <th>Mesa</th>
                     <th>Data</th>
                     <th>Total</th>
-                    <th>Status</th>
                     <th style="text-align:right;">Ações</th>
                 </tr>
             </thead>
@@ -50,9 +49,9 @@
                 @foreach (var p in Model)
                 {
                     <tr>
-                        <td style="color:#444;font-family:'Bebas Neue',sans-serif;font-size:16px;">@p.Id</td>
-                        <td style="color:#ddd;font-weight:500;">Mesa @p.Mesa.Numero</td>
-                        <td style="color:#888;font-size:13px;">@p.DataPedido.ToString("dd/MM/yyyy HH:mm")</td>
+                        <td style="font-family:'Bebas Neue',sans-serif;font-size:16px;">@p.Id</td>
+                        <td style="font-weight:500;"> @(p.Mesa != null ? "Mesa " + p.Mesa.Numero.ToString() : "🛵 Delivery")</td>
+                        <td style="font-size:13px;">@p.DataPedido.ToString("dd/MM/yyyy HH:mm")</td>
                         <td style="color:#4caf50;font-weight:500;">R$ @p.ValorTotal.ToString("F2")</td>
                         @{
                             var statusStyle = "";
@@ -85,6 +84,7 @@
                         <span style="@statusStyle font-size:11px;padding:3px 10px;border-radius:20px;display:inline-block;">
                             @statusText
                         </span>
+
                         <td style="text-align:right;">
                             @Html.ActionLink("Detalhes", "Details", new { id = p.Id }, new
                             {
